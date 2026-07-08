@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mi Reproductor Premium V5.0</title>
+    <title>Mi Reproductor Premium V5.1</title>
     <style>
         /* CONFIGURACIÓN GENERAL TIPOGRAFÍA SAN FRANCISCO */
         * { 
@@ -28,7 +28,7 @@
             --texto-secundario: #86868b;
             --border-color: rgba(0, 0, 0, 0.1);
             --bg-input: rgba(0, 0, 0, 0.05);
-            --apple-accent: #ff2d55; /* Rosa/Rojo característico de Apple Music */
+            --apple-accent: #ff2d55; 
             --bg-item-hover: rgba(0, 0, 0, 0.03);
             --bg-item-active: rgba(255, 45, 85, 0.1);
         }
@@ -68,7 +68,7 @@
             padding: 8px 12px;
             border-radius: 50px;
             cursor: pointer;
-            z-index: 1000;
+            z-index: 400; /* Por debajo de la biblioteca (500) para evitar colisiones */
             font-size: 0.9em;
             font-weight: 600;
             backdrop-filter: blur(10px);
@@ -76,7 +76,7 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            transition: transform 0.2s;
+            transition: transform 0.2s, opacity 0.3s ease, visibility 0.3s;
         }
         .theme-toggle-btn:active { transform: scale(0.95); }
 
@@ -138,7 +138,6 @@
             margin-bottom: 20px;
             box-shadow: 0 12px 28px rgba(0,0,0,0.1);
             flex-shrink: 0;
-            transition: transform 0.3s ease;
         }
 
         .track-info { 
@@ -147,7 +146,6 @@
             flex-direction: column;
         }
         
-        /* Negritas intensas estilo San Francisco Display */
         .track-title { font-size: 1.4em; margin-bottom: 4px; font-weight: 700; letter-spacing: -0.5px; }
         .track-artist { color: var(--apple-accent); font-size: 1em; margin-bottom: 18px; font-weight: 500; word-break: break-word; }
 
@@ -287,7 +285,7 @@
         .lib-item-title { font-size: 1em; font-weight: 600; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--texto-principal); }
         .lib-item-artist { font-size: 0.85em; color: var(--texto-secundario); font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* PANTALLA DE CONTRASEÑA ESTILO APPLE CON BIENVENIDA */
+        /* PANTALLA DE CONTRASEÑA */
         .login-overlay {
             position: fixed;
             top: 0;
@@ -340,7 +338,7 @@
         }
         .login-error { color: #ff3b30; font-size: 0.85em; margin-top: 15px; min-height: 18px; font-weight: 600; }
 
-        /* RESPONSIVIDAD REVOLUCIONARIA HORIZONTAL (PC / MÓVIL DE LADO) */
+        /* MODO RESPONSIVO HORIZONTAL */
         @media (min-width: 768px) or (orientation: landscape) {
             body { padding: 20px; }
             .player-container { max-width: 700px; padding: 30px; border-radius: 24px; }
@@ -435,7 +433,6 @@
             });
         }
 
-        // CONTROLADOR DE MODO NOCHE / CLARO
         const themeToggleBtn = document.getElementById('themeToggleBtn');
         let currentTheme = localStorage.getItem('theme') || 'light';
 
@@ -491,15 +488,26 @@
         const loginBtn = document.getElementById('loginBtn');
         const loginError = document.getElementById('loginError');
 
+        // SOLUCIÓN: Controlamos la visibilidad del botón de tema y evitamos el focus forzado
         openLibraryBtn.addEventListener('click', () => { 
             libraryPage.classList.remove('closing');
             libraryPage.classList.add('open'); 
-            librarySearch.focus(); 
+            
+            // Ocultamos el botón de tema al abrir la biblioteca para evitar que estorbe
+            themeToggleBtn.style.opacity = '0';
+            themeToggleBtn.style.visibility = 'hidden';
+            
+            // Se eliminó librarySearch.focus() para que NO se despliegue el teclado solo
         });
 
         closeLibraryBtn.addEventListener('click', () => { 
             libraryPage.classList.remove('open');
             libraryPage.classList.add('closing');
+            
+            // Mostramos de nuevo el botón de tema suavemente al regresar a la pantalla de inicio
+            themeToggleBtn.style.opacity = '1';
+            themeToggleBtn.style.visibility = 'visible';
+
             setTimeout(() => { libraryPage.classList.remove('closing'); }, 350);
         });
 

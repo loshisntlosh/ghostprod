@@ -303,13 +303,19 @@
                 loginOverlay.style.opacity = '0';
                 setTimeout(() => { loginOverlay.style.display = 'none'; }, 400);
                 bgBlur.classList.add('show-bg');
+                
+                // =========================================================
+                // TRUCO MAESTRO: Desbloqueo silencioso para celulares
+                // =========================================================
+                audio.play().then(() => { audio.pause(); }).catch(() => {});
+                
                 cargarCanciones();
             } else {
                 loginError.textContent = "Contraseña incorrecta. Inténtalo de nuevo.";
                 passwordInput.value = "";
                 passwordInput.focus();
             }
-        }
+        }                    
 
         loginBtn.addEventListener('click', validarAcceso);
         passwordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') validarAcceso(); });
@@ -371,10 +377,21 @@
                 item.addEventListener('click', () => {
                     currentTrackIndex = index;
                     loadTrack(currentTrackIndex);
-                    audio.play();
-                    isPlaying = true;
-                    playBtn.textContent = '⏸';
-                    actualizarMediaSessionPlayback('playing');
+                    
+                    // =========================================================
+                    // CONTROL BLINDADO PARA MÓVILES (Manejo de promesas nativas)
+                    // =========================================================
+                    audio.play().then(() => {
+                        isPlaying = true;
+                        playBtn.textContent = '⏸';
+                        actualizarMediaSessionPlayback('playing');
+                    }).catch(err => {
+                        // Respaldar por si el navegador bloquea el hilo principal
+                        audio.play();
+                        isPlaying = true;
+                        playBtn.textContent = '⏸';
+                    });
+                    
                     actualizarResaltadoLista();
                 });
                 playlistEl.appendChild(item);
@@ -466,36 +483,35 @@
         }
 
 // REEMPLAZA TU FUNCIÓN LOADTRACK POR ESTA VERSIÓN CORREGIDA:
-function loadTrack(index) {
-    if (!playlistFiltrada[index]) return;
-    const track = playlistFiltrada[index];
-    
-    titleEl.textContent = track.titulo || "Sin título";
-    artistEl.textContent = track.artista || "Artista Desconocido";
-    seekProgress.style.width = '0%';
-    currentTimeEl.textContent = '0:00';
-
-    // El Service Worker se encarga de servirlo desde el caché si estás offline,
-    // así que podemos asignar la URL de manera instantánea y síncrona.
-    audio.src = track.archivo_url; 
-
-    if (track.portada_url) {
-        coverEl.style.backgroundImage = `url('${track.portada_url}')`;
-        coverEl.style.backgroundSize = 'cover';
-    } else {
-        coverEl.style.backgroundImage = '';
-        coverEl.style.backgroundSize = '40%';
-    }
-
-    if ('mediaSession' in navigator) {
-        navigator.mediaSession.metadata = new MediaMetadata({
-            title: titleEl.textContent,
-            artist: artistEl.textContent,
-            album: 'Mi Playlist Privada',
-            artwork: [{ src: track.portada_url || '', sizes: '300x300', type: 'image/jpeg' }]
-        });
-    }
-}
+        function loadTrack(index) {
+            if (!playlistFiltrada[index]) return;
+            const track = playlistFiltrada[index];
+            
+            titleEl.textContent = track.titulo || "Sin título";
+            artistEl.textContent = track.artista || "Artista Desconocido";
+            seekProgress.style.width = '0%';
+            currentTimeEl.textContent = '0:00';
+        
+            audio.src = track.archivo_url; 
+            audio.load(); // <--- AGREGA ESTA LÍNEA (Fuerza al celular a digerir el cambio de pista)
+        
+            if (track.portada_url) {
+                coverEl.style.backgroundImage = `url('${track.portada_url}')`;
+                coverEl.style.backgroundSize = 'cover';
+            } else {
+                coverEl.style.backgroundImage = '';
+                coverEl.style.backgroundSize = '40%';
+            }
+        
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: titleEl.textContent,
+                    artist: artistEl.textContent,
+                    album: 'Mi Playlist Privada',
+                    artwork: [{ src: track.portada_url || '', sizes: '300x300', type: 'image/jpeg' }]
+                });
+            }
+        }
 
         function togglePlay() {
             if (isPlaying) { audio.pause(); playBtn.textContent = '▶'; actualizarMediaSessionPlayback('paused'); } 

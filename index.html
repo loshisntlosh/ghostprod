@@ -2,27 +2,53 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <!-- Viewport estricto para eliminar el scroll horizontal en móviles -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mi Reproductor Inteligente V3.2</title>
+    <title>Mi Reproductor Premium V5.0</title>
     <style>
-        /* CONFIGURACIÓN GENERAL PARA EVITAR DESBORDES */
+        /* CONFIGURACIÓN GENERAL TIPOGRAFÍA SAN FRANCISCO */
         * { 
             box-sizing: border-box; 
             margin: 0;
             padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
         
         html, body {
             width: 100%;
             max-width: 100%;
-            overflow-x: hidden; /* Cierra el paso a cualquier scroll lateral */
-            background-color: #0f0f12;
-            color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow-x: hidden;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        /* VARIABLES DE COLOR ESTILO APPLE (Por defecto Modo Claro Apple Music) */
+        :root {
+            --bg-principal: #f5f5f7;
+            --bg-contenedor: rgba(255, 255, 255, 0.75);
+            --texto-principal: #000000;
+            --texto-secundario: #86868b;
+            --border-color: rgba(0, 0, 0, 0.1);
+            --bg-input: rgba(0, 0, 0, 0.05);
+            --apple-accent: #ff2d55; /* Rosa/Rojo característico de Apple Music */
+            --bg-item-hover: rgba(0, 0, 0, 0.03);
+            --bg-item-active: rgba(255, 45, 85, 0.1);
+        }
+
+        /* VARIABLES EN MODO NOCHE */
+        [data-theme="dark"] {
+            --bg-principal: #000000;
+            --bg-contenedor: rgba(28, 28, 30, 0.75);
+            --texto-principal: #ffffff;
+            --texto-secundario: #8e8e93;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --bg-input: rgba(255, 255, 255, 0.1);
+            --apple-accent: #ff3b30;
+            --bg-item-hover: rgba(255, 255, 255, 0.05);
+            --bg-item-active: rgba(255, 59, 48, 0.15);
         }
 
         body {
+            background-color: var(--bg-principal);
+            color: var(--texto-principal);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -31,112 +57,67 @@
             padding: 15px;
         }
 
-        /* CAPA DE FONDO DINÁMICO CON BLUR */
-        .background-blur {
+        /* BOTÓN FLOTANTE MODO NOCHE / DÍA */
+        .theme-toggle-btn {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -2;
-            background-size: cover;
-            background-position: center;
-            filter: blur(25px);
-            transform: scale(1.1);
-            opacity: 0;
-            transition: opacity 0.8s ease-in-out;
-        }
-
-        @media (max-width: 767px) or (orientation: portrait) {
-            .background-blur { background-image: url('vertical.jpg'); }
-        }
-
-        @media (min-width: 768px) and (orientation: landscape) {
-            .background-blur { background-image: url('horizontal.jpg'); }
-        }
-
-        .background-blur.show-bg { opacity: 0.35; }
-
-        /* PANTALLA DE CONTRASEÑA */
-        .login-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #0f0f12;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: opacity 0.4s ease;
-        }
-        .login-box {
-            background: linear-gradient(145deg, #18181c, #121214);
-            padding: 35px 25px;
-            border-radius: 28px;
-            text-align: center;
-            max-width: 340px;
-            width: 90%;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-            border: 1px solid #252529;
-        }
-        .login-box h2 { margin-bottom: 10px; font-size: 1.6em; font-weight: 700; }
-        .login-box p { color: #a0a0ab; font-size: 0.9em; margin-bottom: 25px; }
-        .login-input {
-            width: 100%;
-            padding: 14px;
+            top: 15px;
+            right: 15px;
+            background: var(--bg-contenedor);
+            border: 1px solid var(--border-color);
+            color: var(--texto-principal);
+            padding: 8px 12px;
             border-radius: 50px;
-            border: 1px solid #252529;
-            background-color: #1e1e24;
-            color: white;
-            font-size: 1em;
-            outline: none;
-            text-align: center;
-            margin-bottom: 15px;
-            letter-spacing: 3px;
-        }
-        .login-btn {
-            width: 100%;
-            padding: 14px;
-            border-radius: 50px;
-            border: none;
-            background-color: #ffffff;
-            color: #000000;
-            font-size: 1em;
-            font-weight: bold;
             cursor: pointer;
-        }
-        .login-error { color: #ff4a4a; font-size: 0.85em; margin-top: 15px; min-height: 18px; font-weight: 500; }
-
-        /* REPRODUCTOR ESTRUCTURA BASE (Por defecto móvil vertical) */
-        .player-container {
-            background: rgba(24, 24, 28, 0.85);
+            z-index: 1000;
+            font-size: 0.9em;
+            font-weight: 600;
             backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: transform 0.2s;
+        }
+        .theme-toggle-btn:active { transform: scale(0.95); }
+
+        /* REPRODUCTOR ESTRUCTURA ESTILO APPLE CONTAINER */
+        .player-container {
+            background: var(--bg-contenedor);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             width: 100%;
-            max-width: 360px; /* Ancho controlado para móvil */
-            padding: 20px;
-            border-radius: 28px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            max-width: 360px;
+            padding: 24px;
+            border-radius: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.06);
             display: flex;
             flex-direction: column;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            transition: background 0.4s, border-color 0.4s;
         }
 
-        .search-bar {
+        [data-theme="dark"] .player-container {
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .library-trigger-btn {
             width: 100%;
-            padding: 12px 20px;
+            padding: 14px;
             border-radius: 50px;
-            border: 1px solid #252529;
-            background-color: #1e1e24;
-            color: white;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-input);
+            color: var(--texto-secundario);
             font-size: 0.95em;
-            margin-bottom: 15px;
-            outline: none;
-            text-align: center;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            transition: background 0.2s, color 0.2s;
         }
 
-        /* El contenedor que decide si es fila o columna */
         .player-content { 
             display: flex; 
             flex-direction: column; 
@@ -146,17 +127,18 @@
         }
 
         .cover-art {
-            width: 240px;
-            height: 240px;
-            background-color: #252529;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="%23555" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>');
+            width: 250px;
+            height: 250px;
+            background-color: var(--bg-input);
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="%23888" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>');
             background-position: center;
-            background-size: 40%;
+            background-size: 35%;
             background-repeat: no-repeat;
-            border-radius: 24px;
-            margin-bottom: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            flex-shrink: 0; /* Evita que la portada se deforme */
+            border-radius: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
         }
 
         .track-info { 
@@ -165,119 +147,248 @@
             flex-direction: column;
         }
         
-        .track-title { font-size: 1.3em; margin-bottom: 4px; font-weight: bold; }
-        .track-artist { color: #a0a0ab; font-size: 0.95em; margin-bottom: 12px; word-break: break-word; }
+        /* Negritas intensas estilo San Francisco Display */
+        .track-title { font-size: 1.4em; margin-bottom: 4px; font-weight: 700; letter-spacing: -0.5px; }
+        .track-artist { color: var(--apple-accent); font-size: 1em; margin-bottom: 18px; font-weight: 500; word-break: break-word; }
 
-        .seek-container { width: 100%; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; font-size: 0.8em; color: #a0a0ab; }
-        .seek-bar { flex: 1; margin: 0 10px; height: 5px; border-radius: 5px; background-color: #252529; position: relative; cursor: pointer; overflow: hidden; }
-        .seek-progress { height: 100%; border-radius: 5px; background-color: #ffffff; width: 0%; }
+        .seek-container { width: 100%; display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; font-size: 0.75em; font-weight: 600; color: var(--texto-secundario); }
+        .seek-bar { flex: 1; margin: 0 12px; height: 4px; border-radius: 10px; background-color: var(--bg-input); position: relative; cursor: pointer; }
+        .seek-progress { height: 100%; border-radius: 10px; background-color: var(--texto-principal); width: 0%; }
 
-        .controls { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 12px; }
-        .controls button { background: none; border: none; color: white; font-size: 1.8em; cursor: pointer; opacity: 0.8; }
+        .controls { display: flex; justify-content: center; align-items: center; gap: 25px; margin-bottom: 18px; }
+        .controls button { background: none; border: none; color: var(--texto-principal); font-size: 1.7em; cursor: pointer; transition: opacity 0.2s; }
+        .controls button:active { opacity: 0.5; }
         
         .play-btn {
-            background-color: #ffffff !important;
+            background-color: var(--texto-principal) !important;
             width: 55px;
             height: 55px;
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: #000000 !important;
-            font-size: 1.2em !important;
-            box-shadow: 0 6px 15px rgba(255,255,255,0.2);
-            opacity: 1 !important;
+            color: var(--bg-principal) !important;
+            font-size: 1.1em !important;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.05);
         }
 
-        #shuffleBtn.active { color: #1db954; opacity: 1; }
+        #shuffleBtn.active { color: var(--apple-accent); opacity: 1; }
 
-        .volume-container { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 15px; color: #a0a0ab; font-size: 0.9em; }
-        .volume-slider { -webkit-appearance: none; width: 50%; height: 4px; border-radius: 5px; background: #252529; outline: none; cursor: pointer; }
-        .volume-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #ffffff; }
-
-        .playlist-container { border-top: 1px solid #252529; padding-top: 10px; max-height: 150px; overflow-y: auto; text-align: left; }
-        .playlist-container::-webkit-scrollbar { width: 4px; }
-        .playlist-container::-webkit-scrollbar-thumb { background: #252529; border-radius: 10px; }
-
-        .playlist-item { display: flex; align-items: center; padding: 10px 12px; border-radius: 12px; cursor: pointer; margin-bottom: 4px; }
-        .playlist-item:hover { background-color: #1e1e24; }
-        .playlist-item.active { background-color: rgba(255, 255, 255, 0.08); border-left: 4px solid #ffffff; color: #1db954; }
-        .playlist-item-info { flex: 1; min-width: 0; }
-        .playlist-item-title { font-size: 0.9em; font-weight: 600; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .playlist-item-artist { font-size: 0.8em; color: #a0a0ab; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .volume-container { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 5px; color: var(--texto-secundario); font-size: 0.85em; }
+        .volume-slider { -webkit-appearance: none; width: 50%; height: 4px; border-radius: 10px; background: var(--bg-input); outline: none; cursor: pointer; }
+        .volume-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--texto-principal); }
 
         /* =========================================================
-           CAMBIO REVOLUCIONARIO: MODO HORIZONTAL (PC Y CELULAR ACOSTADO)
+           BIBLIOTECA PANTALLA COMPLETA ESTILO APPLE
            ========================================================= */
+        .library-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-principal);
+            z-index: 500;
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            transform: translateY(100%); 
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, background-color 0.4s ease;
+        }
+        
+        .library-page.open {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .library-page.closing {
+            transform: translateY(0); 
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.35s ease;
+        }
+
+        .library-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        .library-header h1 { font-size: 1.9em; font-weight: 800; letter-spacing: -1px; }
+        
+        .back-btn {
+            background: var(--bg-input);
+            border: none;
+            color: var(--apple-accent);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.9em;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .library-search {
+            width: 100%;
+            padding: 14px 18px;
+            border-radius: 12px;
+            border: none;
+            background-color: var(--bg-input);
+            color: var(--texto-principal);
+            font-size: 1em;
+            font-weight: 500;
+            margin-bottom: 20px;
+            outline: none;
+        }
+
+        .library-list {
+            flex: 1;
+            overflow-y: auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding-bottom: 20px;
+        }
+
+        .lib-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px 12px;
+            background: transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: background 0.2s;
+        }
+        .lib-item:hover { background: var(--bg-item-hover); }
+        
+        .lib-item.active {
+            background: var(--bg-item-active);
+        }
+        .lib-item.active .lib-item-title { color: var(--apple-accent); }
+
+        .lib-item-cover {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            background-color: var(--bg-input);
+            background-size: cover;
+            background-position: center;
+            flex-shrink: 0;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23888" stroke-width="1.5"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>');
+        }
+
+        .lib-item-info { flex: 1; min-width: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .lib-item-title { font-size: 1em; font-weight: 600; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--texto-principal); }
+        .lib-item-artist { font-size: 0.85em; color: var(--texto-secundario); font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* PANTALLA DE CONTRASEÑA ESTILO APPLE CON BIENVENIDA */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-principal);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.4s ease;
+        }
+        .login-box {
+            background: var(--bg-contenedor);
+            padding: 40px 30px;
+            border-radius: 24px;
+            text-align: center;
+            max-width: 340px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            border: 1px solid var(--border-color);
+        }
+        .login-box h2 { margin-bottom: 8px; font-size: 1.7em; font-weight: 700; letter-spacing: -0.5px; }
+        .login-box p { color: var(--texto-secundario); font-size: 0.9em; margin-bottom: 25px; font-weight: 400; }
+        .login-input {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-input);
+            color: var(--texto-principal);
+            font-size: 1.1em;
+            font-weight: 600;
+            outline: none;
+            text-align: center;
+            margin-bottom: 15px;
+            letter-spacing: 4px;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            background-color: var(--apple-accent);
+            color: white;
+            font-size: 1em;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .login-error { color: #ff3b30; font-size: 0.85em; margin-top: 15px; min-height: 18px; font-weight: 600; }
+
+        /* RESPONSIVIDAD REVOLUCIONARIA HORIZONTAL (PC / MÓVIL DE LADO) */
         @media (min-width: 768px) or (orientation: landscape) {
             body { padding: 20px; }
+            .player-container { max-width: 700px; padding: 30px; border-radius: 24px; }
+            .player-content { flex-direction: row; align-items: center; text-align: left; gap: 35px; }
+            .cover-art { width: 260px; height: 260px; margin-bottom: 0; }
+            .track-info { justify-content: center; }
+            .controls { justify-content: flex-start; gap: 25px; }
+            .volume-container { justify-content: flex-start; }
+            .volume-slider { width: 45%; }
             
-            .player-container { 
-                max-width: 720px; /* Más ancho para dar espacio a los lados */
-                padding: 25px;
+            .library-page {
+                max-width: 550px;
+                left: 50%;
+                transform: translate(-50%, 100%);
+                border-radius: 24px 24px 0 0;
+                box-shadow: 0 -15px 40px rgba(0,0,0,0.05);
             }
-
-            .player-content { 
-                flex-direction: row; /* ¡Portada izquierda, controles derecha! */
-                align-items: stretch;
-                text-align: left; 
-                gap: 25px; 
-            }
-
-            .cover-art { 
-                width: 280px; 
-                height: 280px; 
-                margin-bottom: 0; /* Ya no necesita empujar hacia abajo */
-            }
-
-            .track-info {
-                justify-content: center; /* Centra el contenido verticalmente a la derecha */
-            }
-
-            .controls { 
-                justify-content: flex-start; /* Controles alineados a la izquierda en su bloque */
-                gap: 20px; 
-            }
-
-            .volume-container { 
-                justify-content: flex-start; 
-            }
-            
-            .volume-slider {
-                width: 40%;
-            }
-
-            .playlist-container { 
-                max-height: 120px; /* Ajuste para que entre perfecto en pantallas pequeñas de celular horizontal */
-            }
+            .library-page.open { transform: translate(-50%, 0); }
+            .library-page.closing { transform: translate(-50%, 0); }
         }
     </style>
 </head>
 <body>
 
-    <div id="bgBlur" class="background-blur"></div>
+    <!-- BOTÓN MODOS DE PANTALLA -->
+    <button id="themeToggleBtn" class="theme-toggle-btn">🌙 Modo Noche</button>
 
+    <!-- ACCESO CON CONTRASEÑA -->
     <div id="loginOverlay" class="login-overlay">
         <div class="login-box">
-            <h2>Acceso Privado</h2>
-            <p>Por favor ingresa la contraseña para continuar</p>
+            <h2>Música Privada</h2>
+            <p>Ingresa el código de acceso seguro</p>
             <input type="password" id="passwordInput" class="login-input" placeholder="••••••••">
-            <button id="loginBtn" class="login-btn">Entrar</button>
+            <button id="loginBtn" class="login-btn">Continuar</button>
             <div id="loginError" class="login-error"></div>
         </div>
     </div>
 
+    <!-- REPRODUCTOR PRINCIPAL -->
     <div class="player-container">
-        <input type="text" id="search" class="search-bar" placeholder="Buscar canción o artista...">
+        <button id="openLibraryBtn" class="library-trigger-btn">🔍 Buscar en mi biblioteca...</button>
 
         <div class="player-content">
-            <!-- Izquierda en Horizontal / Arriba en Vertical -->
             <div id="cover" class="cover-art"></div>
             
-            <!-- Derecha en Horizontal / Abajo en Vertical -->
             <div class="track-info">
                 <h2 id="title" class="track-title">Conectando...</h2>
-                <p id="artist" class="track-artist">Por favor espera</p>
+                <p id="artist" class="track-artist">Cargando biblioteca</p>
                 
                 <div class="seek-container">
                     <span id="currentTime">0:00</span>
@@ -299,10 +410,20 @@
                     <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.01" value="0.7">
                     <span>🔊</span>
                 </div>
-
-                <div id="playlist" class="playlist-container"></div>
             </div>
         </div>
+    </div>
+
+    <!-- CAPA DE BIBLIOTECA -->
+    <div id="libraryPage" class="library-page">
+        <div class="library-header">
+            <h1>Biblioteca</h1>
+            <button id="closeLibraryBtn" class="back-btn">Volver</button>
+        </div>
+        
+        <input type="text" id="librarySearch" class="library-search" placeholder="Artistas, canciones y más...">
+        
+        <div id="libraryList" class="library-list"></div>
     </div>
 
     <audio id="audioPlayer" preload="auto"></audio>
@@ -313,6 +434,27 @@
                 navigator.serviceWorker.register('./sw.js').catch(err => console.log(err));
             });
         }
+
+        // CONTROLADOR DE MODO NOCHE / CLARO
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        let currentTheme = localStorage.getItem('theme') || 'light';
+
+        if (currentTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeToggleBtn.innerHTML = '☀️ Modo Normal';
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            if (document.documentElement.getAttribute('data-theme') === 'dark') {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+                themeToggleBtn.innerHTML = '🌙 Modo Noche';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                themeToggleBtn.innerHTML = '☀️ Modo Normal';
+            }
+        });
 
         const SUPABASE_URL = "https://xkbxlrmodzucmpxcnwtj.supabase.co"; 
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrYnhscm1vZHp1Y21weGNud3RqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyNjA4MjIsImV4cCI6MjA5ODgzNjgyMn0.GQdaROzvGo1JTd3IYb5vDetuO5cq6UiGFrGHN7azWy8";
@@ -331,29 +473,41 @@
         const titleEl = document.getElementById('title');
         const artistEl = document.getElementById('artist');
         const coverEl = document.getElementById('cover');
-        const searchInput = document.getElementById('search');
-        const playlistEl = document.getElementById('playlist');
+        
+        const libraryPage = document.getElementById('libraryPage');
+        const openLibraryBtn = document.getElementById('openLibraryBtn');
+        const closeLibraryBtn = document.getElementById('closeLibraryBtn');
+        const librarySearch = document.getElementById('librarySearch');
+        const libraryList = document.getElementById('libraryList');
+
         const currentTimeEl = document.getElementById('currentTime');
         const durationTimeEl = document.getElementById('durationTime');
         const seekBar = document.getElementById('seekBar');
         const seekProgress = document.getElementById('seekProgress');
         const volumeSlider = document.getElementById('volumeSlider');
-        const bgBlur = document.getElementById('bgBlur');
 
         const loginOverlay = document.getElementById('loginOverlay');
         const passwordInput = document.getElementById('passwordInput');
         const loginBtn = document.getElementById('loginBtn');
         const loginError = document.getElementById('loginError');
 
+        openLibraryBtn.addEventListener('click', () => { 
+            libraryPage.classList.remove('closing');
+            libraryPage.classList.add('open'); 
+            librarySearch.focus(); 
+        });
+
+        closeLibraryBtn.addEventListener('click', () => { 
+            libraryPage.classList.remove('open');
+            libraryPage.classList.add('closing');
+            setTimeout(() => { libraryPage.classList.remove('closing'); }, 350);
+        });
+
         function validarAcceso() {
             if (passwordInput.value === "monter1a") {
                 loginOverlay.style.opacity = '0';
                 setTimeout(() => { loginOverlay.style.display = 'none'; }, 400);
-                bgBlur.classList.add('show-bg');
-                
-                // Desbloqueo silencioso para celulares
                 audio.play().then(() => { audio.pause(); }).catch(() => {});
-                
                 cargarCanciones();
             } else {
                 loginError.textContent = "Contraseña incorrecta. Inténtalo de nuevo.";
@@ -383,42 +537,52 @@
             }
         }
 
-        function renderPlaylist(songs) {
-            playlistEl.innerHTML = '';
-            songs.forEach((track, index) => {
+        function renderBiblioteca(songs) {
+            libraryList.innerHTML = '';
+            songs.forEach((track) => {
                 const item = document.createElement('div');
-                item.className = `playlist-item ${index === currentTrackIndex ? 'active' : ''}`;
+                const esActiva = cancionesOriginales[currentTrackIndex] && cancionesOriginales[currentTrackIndex].archivo_url === track.archivo_url;
+                
+                item.className = `lib-item ${esActiva ? 'active' : ''}`;
+                const styleCover = track.portada_url ? `style="background-image: url('${track.portada_url}')"` : '';
+                
                 item.innerHTML = `
-                    <div class="playlist-item-info">
-                        <p class="playlist-item-title">${track.titulo || 'Sin título'}</p>
-                        <p class="playlist-item-artist">${track.artista || 'Artista desconocido'}</p>
+                    <div class="lib-item-cover" ${styleCover}></div>
+                    <div class="lib-item-info">
+                        <p class="lib-item-title">${track.titulo || 'Sin título'}</p>
+                        <p class="lib-item-artist">${track.artista || 'Artista desconocido'}</p>
                     </div>
                 `;
+
                 item.addEventListener('click', () => {
-                    currentTrackIndex = index;
+                    const idxGlobal = cancionesOriginales.findIndex(c => c.archivo_url === track.archivo_url);
+                    if(idxGlobal !== -1) currentTrackIndex = idxGlobal;
+                    
+                    playlistFiltrada = [...cancionesOriginales];
                     loadTrack(currentTrackIndex);
-                    audio.play().then(() => {
-                        isPlaying = true;
-                        playBtn.textContent = '⏸';
-                    }).catch(() => {
-                        audio.play();
-                        isPlaying = true;
-                        playBtn.textContent = '⏸';
-                    });
-                    actualizarResaltadoLista();
+                    audio.play().then(() => { isPlaying = true; playBtn.textContent = '⏸'; }).catch(() => { audio.play(); isPlaying = true; playBtn.textContent = '⏸'; });
+                    
+                    actualizarResaltadoBiblioteca(songs);
                 });
-                playlistEl.appendChild(item);
+                libraryList.appendChild(item);
             });
         }
 
-        function actualizarResaltadoLista() {
-            const items = playlistEl.querySelectorAll('.playlist-item');
-            items.forEach((item, index) => {
-                if (index === currentTrackIndex) {
-                    item.classList.add('active');
-                    item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                } else {
-                    item.classList.remove('active');
+        function actualizarResaltadoBiblioteca(listaActual) {
+            const items = libraryList.querySelectorAll('.lib-item');
+            if(items.length === 0) return;
+            
+            const cancionActual = cancionesOriginales[currentTrackIndex];
+            if(!cancionActual) return;
+
+            listaActual.forEach((track, index) => {
+                const item = items[index];
+                if(item) {
+                    if(track.archivo_url === cancionActual.archivo_url) {
+                        item.classList.add('active');
+                    } else {
+                        item.classList.remove('active');
+                    }
                 }
             });
         }
@@ -432,7 +596,7 @@
         function initPlayer() {
             audio.volume = volumeSlider.value;
             loadTrack(currentTrackIndex);
-            renderPlaylist(playlistFiltrada);
+            renderBiblioteca(playlistFiltrada);
 
             playBtn.addEventListener('click', togglePlay);
             nextBtn.addEventListener('click', nextTrack);
@@ -459,25 +623,17 @@
 
             volumeSlider.addEventListener('input', (e) => { audio.volume = e.target.value; });
 
-            searchInput.addEventListener('input', (e) => {
+            librarySearch.addEventListener('input', (e) => {
                 const termino = e.target.value.toLowerCase();
-                const cancionSonandoActualmente = playlistFiltrada[currentTrackIndex];
-
-                playlistFiltrada = cancionesOriginales.filter(c => 
+                const filtradas = cancionesOriginales.filter(c => 
                     (c.titulo && c.titulo.toLowerCase().includes(termino)) || 
                     (c.artista && c.artista.toLowerCase().includes(termino))
                 );
                 
-                if (playlistFiltrada.length > 0) {
-                    if (cancionSonandoActualmente) {
-                        const nuevoIndice = playlistFiltrada.findIndex(c => c.archivo_url === cancionSonandoActualmente.archivo_url);
-                        currentTrackIndex = nuevoIndice !== -1 ? nuevoIndice : 0;
-                    } else {
-                        currentTrackIndex = 0;
-                    }
-                    renderPlaylist(playlistFiltrada);
+                if (filtradas.length > 0) {
+                    renderBiblioteca(filtradas);
                 } else {
-                    playlistEl.innerHTML = '<p style="font-size:0.85em; color:#808088; text-align:center; padding:10px;">No se encontraron resultados</p>';
+                    libraryList.innerHTML = '<p style="font-size:0.95em; color:var(--texto-secundario); text-align:center; padding:30px;">No encontramos resultados</p>';
                 }
             });
         }
@@ -499,7 +655,7 @@
                 coverEl.style.backgroundSize = 'cover';
             } else {
                 coverEl.style.backgroundImage = '';
-                coverEl.style.backgroundSize = '40%';
+                coverEl.style.backgroundSize = '35%';
             }
         }
 
@@ -521,7 +677,13 @@
                 currentTrackIndex = (currentTrackIndex + 1) % playlistFiltrada.length;
             }
             loadTrack(currentTrackIndex);
-            actualizarResaltadoLista();
+            
+            const termino = librarySearch.value.toLowerCase();
+            const actualesEnPantalla = cancionesOriginales.filter(c => 
+                (c.titulo && c.titulo.toLowerCase().includes(termino)) || 
+                (c.artista && c.artista.toLowerCase().includes(termino))
+            );
+            actualizarResaltadoBiblioteca(actualesEnPantalla);
             if (isPlaying) audio.play();
         }
 
@@ -529,7 +691,13 @@
             if (playlistFiltrada.length === 0) return;
             currentTrackIndex = (currentTrackIndex - 1 + playlistFiltrada.length) % playlistFiltrada.length;
             loadTrack(currentTrackIndex);
-            actualizarResaltadoLista();
+            
+            const termino = librarySearch.value.toLowerCase();
+            const actualesEnPantalla = cancionesOriginales.filter(c => 
+                (c.titulo && c.titulo.toLowerCase().includes(termino)) || 
+                (c.artista && c.artista.toLowerCase().includes(termino))
+            );
+            actualizarResaltadoBiblioteca(actualesEnPantalla);
             if (isPlaying) audio.play();
         }
     </script>

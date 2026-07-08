@@ -465,48 +465,37 @@
             }
         }
 
-        // LOGICA DE CARGA OPTIMIZADA (Intenta reproducir la versión descargada localmente)
-        async function loadTrack(index) {
-            if (!playlistFiltrada[index]) return;
-            const track = playlistFiltrada[index];
-            
-            titleEl.textContent = track.titulo || "Sin título";
-            artistEl.textContent = track.artista || "Artista Desconocido";
-            seekProgress.style.width = '0%';
-            currentTimeEl.textContent = '0:00';
+// REEMPLAZA TU FUNCIÓN LOADTRACK POR ESTA VERSIÓN CORREGIDA:
+function loadTrack(index) {
+    if (!playlistFiltrada[index]) return;
+    const track = playlistFiltrada[index];
+    
+    titleEl.textContent = track.titulo || "Sin título";
+    artistEl.textContent = track.artista || "Artista Desconocido";
+    seekProgress.style.width = '0%';
+    currentTimeEl.textContent = '0:00';
 
-            // Comprobar si la canción está en la caché interna
-            try {
-                const cache = await caches.open('reproductor-archivos-audio');
-                const respuestaCacheada = await cache.match(track.archivo_url);
-                if (respuestaCacheada) {
-                    const audioBlob = await respuestaCacheada.blob();
-                    audio.src = URL.createObjectURL(audioBlob); // Usa el archivo descargado
-                    console.log("Cargado desde caché interna offline.");
-                } else {
-                    audio.src = track.archivo_url; // Usa internet si no se ha terminado de descargar
-                }
-            } catch (err) {
-                audio.src = track.archivo_url;
-            }
+    // El Service Worker se encarga de servirlo desde el caché si estás offline,
+    // así que podemos asignar la URL de manera instantánea y síncrona.
+    audio.src = track.archivo_url; 
 
-            if (track.portada_url) {
-                coverEl.style.backgroundImage = `url('${track.portada_url}')`;
-                coverEl.style.backgroundSize = 'cover';
-            } else {
-                coverEl.style.backgroundImage = '';
-                coverEl.style.backgroundSize = '40%';
-            }
+    if (track.portada_url) {
+        coverEl.style.backgroundImage = `url('${track.portada_url}')`;
+        coverEl.style.backgroundSize = 'cover';
+    } else {
+        coverEl.style.backgroundImage = '';
+        coverEl.style.backgroundSize = '40%';
+    }
 
-            if ('mediaSession' in navigator) {
-                navigator.mediaSession.metadata = new MediaMetadata({
-                    title: titleEl.textContent,
-                    artist: artistEl.textContent,
-                    album: 'Mi Playlist Privada',
-                    artwork: [{ src: track.portada_url || '', sizes: '300x300', type: 'image/jpeg' }]
-                });
-            }
-        }
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: titleEl.textContent,
+            artist: artistEl.textContent,
+            album: 'Mi Playlist Privada',
+            artwork: [{ src: track.portada_url || '', sizes: '300x300', type: 'image/jpeg' }]
+        });
+    }
+}
 
         function togglePlay() {
             if (isPlaying) { audio.pause(); playBtn.textContent = '▶'; actualizarMediaSessionPlayback('paused'); } 

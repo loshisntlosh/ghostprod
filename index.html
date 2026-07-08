@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Reproductor Inteligente V3</title>
+    <title>Mi Reproductor Inteligente V3.1</title>
     <style>
         /* CONFIGURACIÓN GENERAL */
         * { box-sizing: border-box; }
@@ -21,9 +21,7 @@
             overflow-x: hidden;
         }
 
-        /* ========================================== */
-        /* NUEVO: CAPA DE FONDO DINÁMICO CON BLUR     */
-        /* ========================================== */
+        /* CAPA DE FONDO DINÁMICO CON BLUR */
         .background-blur {
             position: fixed;
             top: 0;
@@ -33,30 +31,21 @@
             z-index: -2;
             background-size: cover;
             background-position: center;
-            filter: blur(25px); /* Efecto de desenfoque */
-            transform: scale(1.1); /* Evita los bordes blancos del blur */
-            opacity: 0; /* Oculto al inicio */
+            filter: blur(25px);
+            transform: scale(1.1);
+            opacity: 0;
             transition: opacity 0.8s ease-in-out;
         }
 
-        /* Carga la imagen VERTICAL en móviles */
         @media (max-width: 767px) or (orientation: portrait) {
-            .background-blur {
-                background-image: url('vertical.jpg');
-            }
+            .background-blur { background-image: url('vertical.jpg'); }
         }
 
-        /* Carga la imagen HORIZONTAL en computadoras o pantallas anchas */
         @media (min-width: 768px) and (orientation: landscape) {
-            .background-blur {
-                background-image: url('horizontal.jpg');
-            }
+            .background-blur { background-image: url('horizontal.jpg'); }
         }
 
-        /* Clase que se activa dinámicamente con JS al poner la clave */
-        .background-blur.show-bg {
-            opacity: 0.35; /* Opacidad perfecta para que no opaque la interfaz oscura */
-        }
+        .background-blur.show-bg { opacity: 0.35; }
 
         /* PANTALLA DE CONTRASEÑA */
         .login-overlay {
@@ -113,10 +102,10 @@
         .login-btn:active { transform: scale(0.98); }
         .login-error { color: #ff4a4a; font-size: 0.85em; margin-top: 15px; min-height: 18px; font-weight: 500; }
 
-        /* REPRODUCTOR PRINCIPAL CON RESPALDO TRASLÚCIDO (GLASSMORPHISM) */
+        /* REPRODUCTOR PRINCIPAL */
         .player-container {
             background: rgba(24, 24, 28, 0.85);
-            backdrop-filter: blur(10px); /* Hace juego con el fondo */
+            backdrop-filter: blur(10px);
             width: 100%;
             max-width: 360px;
             padding: 25px;
@@ -218,10 +207,8 @@
 </head>
 <body>
 
-    <!-- NUEVA CAPA: FONDO CON BLUR -->
     <div id="bgBlur" class="background-blur"></div>
 
-    <!-- PANTALLA DE LOGEO -->
     <div id="loginOverlay" class="login-overlay">
         <div class="login-box">
             <h2>Acceso Privado</h2>
@@ -232,7 +219,6 @@
         </div>
     </div>
 
-    <!-- REPRODUCTOR -->
     <div class="player-container">
         <input type="text" id="search" class="search-bar" placeholder="Buscar canción o artista...">
 
@@ -272,6 +258,15 @@
     <audio id="audioPlayer" preload="auto"></audio>
 
     <script>
+        // REGISTRO DEL SERVICE WORKER (Para soporte Offline de la página)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Offline activo con éxito.'))
+                    .catch(err => console.log('Error de caché offline:', err));
+            });
+        }
+
         const SUPABASE_URL = "https://xkbxlrmodzucmpxcnwtj.supabase.co"; 
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrYnhscm1vZHp1Y21weGNud3RqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyNjA4MjIsImV4cCI6MjA5ODgzNjgyMn0.GQdaROzvGo1JTd3IYb5vDetuO5cq6UiGFrGHN7azWy8";
 
@@ -304,17 +299,10 @@
         const loginError = document.getElementById('loginError');
 
         function validarAcceso() {
-            const passwordDigitado = passwordInput.value;
-            
-            if (passwordDigitado === "monter1a") {
+            if (passwordInput.value === "monter1a") {
                 loginOverlay.style.opacity = '0';
-                setTimeout(() => {
-                    loginOverlay.style.display = 'none';
-                }, 400);
-                
-                // REVELAR EL FONDO CON BLUR CON TRANSICIÓN SUAVE
+                setTimeout(() => { loginOverlay.style.display = 'none'; }, 400);
                 bgBlur.classList.add('show-bg');
-                
                 cargarCanciones();
             } else {
                 loginError.textContent = "Contraseña incorrecta. Inténtalo de nuevo.";
@@ -324,9 +312,7 @@
         }
 
         loginBtn.addEventListener('click', validarAcceso);
-        passwordInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') validarAcceso();
-        });
+        passwordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') validarAcceso(); });
 
         async function cargarCanciones() {
             try {
@@ -334,24 +320,41 @@
                     headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
                 });
                 
-                if (!response.ok) {
-                    const errorTexto = await response.text();
-                    throw new Error(`Error de Supabase (${response.status}): ${errorTexto}`);
-                }
+                if (!response.ok) throw new Error("Fallo de red");
 
                 cancionesOriginales = await response.json();
-                playlistFiltrada = [...cancionesOriginales];
-                
-                if (playlistFiltrada.length > 0) { 
-                    initPlayer(); 
-                } else { 
-                    titleEl.textContent = "Sin canciones"; 
-                    artistEl.textContent = "Tu tabla está vacía en Supabase."; 
-                }
+                // Respaldamos los datos JSON localmente para cuando no haya internet
+                localStorage.setItem('db_cache_canciones', JSON.stringify(cancionesOriginales));
             } catch (e) { 
-                titleEl.textContent = "Fallo de Conexión"; 
-                artistEl.textContent = e.message; 
+                console.log("Modo sin internet detectado. Cargando desde almacenamiento local.");
+                const dataGuardada = localStorage.getItem('db_cache_canciones');
+                if (dataGuardada) {
+                    cancionesOriginales = JSON.parse(dataGuardada);
+                } else {
+                    titleEl.textContent = "Sin Conexión"; 
+                    artistEl.textContent = "Aún no hay canciones descargadas en caché.";
+                    return;
+                }
             }
+
+            playlistFiltrada = [...cancionesOriginales];
+            if (playlistFiltrada.length > 0) { 
+                initPlayer(); 
+                descargarMusicaEnSegundoPlano(); // Inicia la descarga inteligente
+            }
+        }
+
+        // FUNCIÓN NUEVA: Guarda los archivos de audio reales en el caché del dispositivo
+        async function descargarMusicaEnSegundoPlano() {
+            try {
+                const cache = await caches.open('reproductor-archivos-audio');
+                cancionesOriginales.forEach(async (track) => {
+                    const cacheado = await cache.match(track.archivo_url);
+                    if (!cacheado && track.archivo_url) {
+                        cache.add(track.archivo_url).catch(err => console.log("Descarga pospuesta: ", track.titulo));
+                    }
+                });
+            } catch (err) { console.log("Caché de audio no soportado aún."); }
         }
 
         function renderPlaylist(songs) {
@@ -396,11 +399,8 @@
             return `${min}:${sec < 10 ? '0' : ''}${sec}`;
         }
 
-        // CONTROL INTEGRADO PARA SEGUNDO PLANO (SISTEMA OPERATIVO MÓVIL)
         function actualizarMediaSessionPlayback(state) {
-            if ('mediaSession' in navigator) {
-                navigator.mediaSession.playbackState = state;
-            }
+            if ('mediaSession' in navigator) { navigator.mediaSession.playbackState = state; }
         }
 
         function initPlayer() {
@@ -425,41 +425,38 @@
                     seekProgress.style.width = `${progressPercent}%`;
                 }
             });
-            audio.addEventListener('loadedmetadata', () => {
-                durationTimeEl.textContent = formatTime(audio.duration);
-            });
+            audio.addEventListener('loadedmetadata', () => { durationTimeEl.textContent = formatTime(audio.duration); });
             seekBar.addEventListener('click', (e) => {
                 const seekTo = (e.offsetX / seekBar.offsetWidth) * audio.duration;
                 audio.currentTime = seekTo;
             });
 
-            volumeSlider.addEventListener('input', (e) => {
-                audio.volume = e.target.value;
-            });
+            volumeSlider.addEventListener('input', (e) => { audio.volume = e.target.value; });
 
+            // CORRECCIÓN DEL BUSCADOR: Ya no detiene la música al escribir
             searchInput.addEventListener('input', (e) => {
                 const termino = e.target.value.toLowerCase();
+                const cancionSonandoActualmente = playlistFiltrada[currentTrackIndex];
+
                 playlistFiltrada = cancionesOriginales.filter(c => 
                     (c.titulo && c.titulo.toLowerCase().includes(termino)) || 
                     (c.artista && c.artista.toLowerCase().includes(termino))
                 );
                 
                 if (playlistFiltrada.length > 0) {
-                    currentTrackIndex = 0;
-                    loadTrack(currentTrackIndex);
+                    // Si lo que estaba sonando sigue en la búsqueda, re-sincronizamos el índice en silencio
+                    if (cancionSonandoActualmente) {
+                        const nuevoIndice = playlistFiltrada.findIndex(c => c.archivo_url === cancionSonandoActualmente.archivo_url);
+                        currentTrackIndex = nuevoIndice !== -1 ? nuevoIndice : 0;
+                    } else {
+                        currentTrackIndex = 0;
+                    }
                     renderPlaylist(playlistFiltrada);
                 } else {
                     playlistEl.innerHTML = '<p style="font-size:0.85em; color:#808088; text-align:center; padding:10px;">No se encontraron resultados</p>';
-                    titleEl.textContent = "No se encontró";
-                    artistEl.textContent = "Intenta otra búsqueda";
-                    coverEl.style.backgroundImage = '';
-                    seekProgress.style.width = '0%';
-                    currentTimeEl.textContent = '0:00';
-                    durationTimeEl.textContent = '0:00';
                 }
             });
 
-            // ENLAZAR BOTONES DE CONTROL DE LA PANTALLA DE BLOQUEO DEL CELULAR
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.setActionHandler('play', () => { audio.play(); isPlaying = true; playBtn.textContent = '⏸'; actualizarMediaSessionPlayback('playing'); });
                 navigator.mediaSession.setActionHandler('pause', () => { audio.pause(); isPlaying = false; playBtn.textContent = '▶'; actualizarMediaSessionPlayback('paused'); });
@@ -468,14 +465,30 @@
             }
         }
 
-        function loadTrack(index) {
+        // LOGICA DE CARGA OPTIMIZADA (Intenta reproducir la versión descargada localmente)
+        async function loadTrack(index) {
             if (!playlistFiltrada[index]) return;
             const track = playlistFiltrada[index];
-            audio.src = track.archivo_url;
+            
             titleEl.textContent = track.titulo || "Sin título";
             artistEl.textContent = track.artista || "Artista Desconocido";
             seekProgress.style.width = '0%';
             currentTimeEl.textContent = '0:00';
+
+            // Comprobar si la canción está en la caché interna
+            try {
+                const cache = await caches.open('reproductor-archivos-audio');
+                const respuestaCacheada = await cache.match(track.archivo_url);
+                if (respuestaCacheada) {
+                    const audioBlob = await respuestaCacheada.blob();
+                    audio.src = URL.createObjectURL(audioBlob); // Usa el archivo descargado
+                    console.log("Cargado desde caché interna offline.");
+                } else {
+                    audio.src = track.archivo_url; // Usa internet si no se ha terminado de descargar
+                }
+            } catch (err) {
+                audio.src = track.archivo_url;
+            }
 
             if (track.portada_url) {
                 coverEl.style.backgroundImage = `url('${track.portada_url}')`;
@@ -485,30 +498,19 @@
                 coverEl.style.backgroundSize = '40%';
             }
 
-            // ENVIAR INFORMACIÓN DE LA CANCIÓN A LA PANTALLA DE BLOQUEO DEL MÓVIL
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.metadata = new MediaMetadata({
                     title: titleEl.textContent,
                     artist: artistEl.textContent,
                     album: 'Mi Playlist Privada',
-                    artwork: [
-                        { src: track.portada_url || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="%23555" stroke-width="1.5"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>', sizes: '300x300', type: 'image/jpeg' }
-                    ]
+                    artwork: [{ src: track.portada_url || '', sizes: '300x300', type: 'image/jpeg' }]
                 });
             }
         }
 
         function togglePlay() {
-            if (isPlaying) { 
-                audio.pause(); 
-                playBtn.textContent = '▶'; 
-                actualizarMediaSessionPlayback('paused');
-            } 
-            else { 
-                audio.play(); 
-                playBtn.textContent = '⏸'; 
-                actualizarMediaSessionPlayback('playing');
-            }
+            if (isPlaying) { audio.pause(); playBtn.textContent = '▶'; actualizarMediaSessionPlayback('paused'); } 
+            else { audio.play(); playBtn.textContent = '⏸'; actualizarMediaSessionPlayback('playing'); }
             isPlaying = !isPlaying;
         }
 
@@ -525,10 +527,7 @@
             }
             loadTrack(currentTrackIndex);
             actualizarResaltadoLista();
-            if (isPlaying) {
-                audio.play();
-                actualizarMediaSessionPlayback('playing');
-            }
+            if (isPlaying) { audio.play(); actualizarMediaSessionPlayback('playing'); }
         }
 
         function prevTrack() {
@@ -536,10 +535,7 @@
             currentTrackIndex = (currentTrackIndex - 1 + playlistFiltrada.length) % playlistFiltrada.length;
             loadTrack(currentTrackIndex);
             actualizarResaltadoLista();
-            if (isPlaying) {
-                audio.play();
-                actualizarMediaSessionPlayback('playing');
-            }
+            if (isPlaying) { audio.play(); actualizarMediaSessionPlayback('playing'); }
         }
     </script>
 </body>

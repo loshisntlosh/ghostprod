@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mi Reproductor Premium V5.1</title>
+    <title>Mi Reproductor Premium V6.0</title>
     <style>
         /* CONFIGURACIÓN GENERAL TIPOGRAFÍA SAN FRANCISCO */
         * { 
@@ -31,6 +31,7 @@
             --apple-accent: #ff2d55; 
             --bg-item-hover: rgba(0, 0, 0, 0.03);
             --bg-item-active: rgba(255, 45, 85, 0.1);
+            --bg-gesture-overlay: rgba(255, 255, 255, 0.95);
         }
 
         /* VARIABLES EN MODO NOCHE */
@@ -44,6 +45,7 @@
             --apple-accent: #ff3b30;
             --bg-item-hover: rgba(255, 255, 255, 0.05);
             --bg-item-active: rgba(255, 59, 48, 0.15);
+            --bg-gesture-overlay: rgba(15, 15, 18, 0.95);
         }
 
         body {
@@ -68,7 +70,7 @@
             padding: 8px 12px;
             border-radius: 50px;
             cursor: pointer;
-            z-index: 400; /* Por debajo de la biblioteca (500) para evitar colisiones */
+            z-index: 400; 
             font-size: 0.9em;
             font-weight: 600;
             backdrop-filter: blur(10px);
@@ -336,9 +338,80 @@
             font-weight: 700;
             cursor: pointer;
         }
+
+        /* NUEVO BOTÓN DE GESTO SÓLO PARA MÓVILES (Oculto en PC por defecto) */
+        .gesture-init-btn {
+            display: none; 
+            width: 100%;
+            padding: 12px;
+            margin-top: 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: transparent;
+            color: var(--texto-principal);
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        /* INTERFAZ CAPTURA DE GESTO */
+        .gesture-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-gesture-overlay);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .gesture-overlay.open { opacity: 1; pointer-events: auto; }
+        .gesture-area {
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            touch-action: none; /* Crucial para interceptar toques sin hacer scroll nativo */
+        }
+        .gesture-icon {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+        .gesture-overlay h3 { font-size: 1.4em; font-weight: 700; margin-bottom: 8px; }
+        .gesture-overlay p { color: var(--texto-secundario); font-size: 0.95em; max-width: 260px; line-height: 1.4; }
+        .gesture-cancel-btn {
+            background: var(--bg-input);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            color: var(--apple-accent);
+            font-weight: 700;
+            font-size: 0.95em;
+            margin-top: 30px;
+            cursor: pointer;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(15px); }
+        }
+
         .login-error { color: #ff3b30; font-size: 0.85em; margin-top: 15px; min-height: 18px; font-weight: 600; }
 
-        /* MODO RESPONSIVO HORIZONTAL */
+        /* MODO RESPONSIVO HORIZONTAL / PANTALLAS GRANDES */
         @media (min-width: 768px) or (orientation: landscape) {
             body { padding: 20px; }
             .player-container { max-width: 700px; padding: 30px; border-radius: 24px; }
@@ -359,25 +432,41 @@
             .library-page.open { transform: translate(-50%, 0); }
             .library-page.closing { transform: translate(-50%, 0); }
         }
+
+        /* MEDIA QUERY EXCLUSIVA PARA DISPOSITIVOS MÓVILES/TÁCTILES */
+        @media (max-width: 767px) {
+            .gesture-init-btn {
+                display: block; /* Revela el botón de gestos solo en móviles */
+            }
+        }
     </style>
 </head>
 <body>
 
-    <!-- BOTÓN MODOS DE PANTALLA -->
     <button id="themeToggleBtn" class="theme-toggle-btn">🌙 Modo Noche</button>
 
-    <!-- ACCESO CON CONTRASEÑA -->
     <div id="loginOverlay" class="login-overlay">
         <div class="login-box">
             <h2>Música Privada</h2>
             <p>Ingresa el código de acceso seguro</p>
             <input type="password" id="passwordInput" class="login-input" placeholder="••••••••">
             <button id="loginBtn" class="login-btn">Continuar</button>
+            
+            <button id="gestureInitBtn" class="gesture-init-btn">📱 Desbloquear por gesto</button>
+            
             <div id="loginError" class="login-error"></div>
         </div>
     </div>
 
-    <!-- REPRODUCTOR PRINCIPAL -->
+    <div id="gestureOverlay" class="gesture-overlay">
+        <div id="gestureArea" class="gesture-area">
+            <div class="gesture-icon">✌️👇</div>
+            <h3>Gesto de Seguridad</h3>
+            <p>Coloca dos dedos juntos en la pantalla y deslízalos hacia abajo con firmeza.</p>
+        </div>
+        <button id="gestureCancelBtn" class="gesture-cancel-btn">Cancelar</button>
+    </div>
+
     <div class="player-container">
         <button id="openLibraryBtn" class="library-trigger-btn">🔍 Buscar en mi biblioteca...</button>
 
@@ -412,7 +501,6 @@
         </div>
     </div>
 
-    <!-- CAPA DE BIBLIOTECA -->
     <div id="libraryPage" class="library-page">
         <div class="library-header">
             <h1>Biblioteca</h1>
@@ -488,35 +576,38 @@
         const loginBtn = document.getElementById('loginBtn');
         const loginError = document.getElementById('loginError');
 
-        // SOLUCIÓN: Controlamos la visibilidad del botón de tema y evitamos el focus forzado
+        // ELEMENTOS DEL GESTO
+        const gestureInitBtn = document.getElementById('gestureInitBtn');
+        const gestureOverlay = document.getElementById('gestureOverlay');
+        const gestureArea = document.getElementById('gestureArea');
+        const gestureCancelBtn = document.getElementById('gestureCancelBtn');
+
         openLibraryBtn.addEventListener('click', () => { 
             libraryPage.classList.remove('closing');
             libraryPage.classList.add('open'); 
-            
-            // Ocultamos el botón de tema al abrir la biblioteca para evitar que estorbe
             themeToggleBtn.style.opacity = '0';
             themeToggleBtn.style.visibility = 'hidden';
-            
-            // Se eliminó librarySearch.focus() para que NO se despliegue el teclado solo
         });
 
         closeLibraryBtn.addEventListener('click', () => { 
             libraryPage.classList.remove('open');
             libraryPage.classList.add('closing');
-            
-            // Mostramos de nuevo el botón de tema suavemente al regresar a la pantalla de inicio
             themeToggleBtn.style.opacity = '1';
             themeToggleBtn.style.visibility = 'visible';
-
             setTimeout(() => { libraryPage.classList.remove('closing'); }, 350);
         });
 
+        function otorgarAccesoExitoso() {
+            loginOverlay.style.opacity = '0';
+            gestureOverlay.classList.remove('open');
+            setTimeout(() => { loginOverlay.style.display = 'none'; }, 400);
+            audio.play().then(() => { audio.pause(); }).catch(() => {});
+            cargarCanciones();
+        }
+
         function validarAcceso() {
             if (passwordInput.value === "monter1a") {
-                loginOverlay.style.opacity = '0';
-                setTimeout(() => { loginOverlay.style.display = 'none'; }, 400);
-                audio.play().then(() => { audio.pause(); }).catch(() => {});
-                cargarCanciones();
+                otorgarAccesoExitoso();
             } else {
                 loginError.textContent = "Contraseña incorrecta. Inténtalo de nuevo.";
                 passwordInput.value = "";
@@ -526,6 +617,46 @@
 
         loginBtn.addEventListener('click', validarAcceso);
         passwordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') validarAcceso(); });
+
+        // LÓGICA DE CONTROL DE GESTOS MULTITOUCH
+        let touchStartY = 0;
+        let esGestoValido = false;
+
+        gestureInitBtn.addEventListener('click', () => {
+            gestureOverlay.classList.add('open');
+        });
+
+        gestureCancelBtn.addEventListener('click', () => {
+            gestureOverlay.classList.remove('open');
+        });
+
+        gestureArea.addEventListener('touchstart', (e) => {
+            // Verificamos obligatoriamente que sean exactamente 2 dedos en pantalla
+            if (e.touches.length === 2) {
+                esGestoValido = true;
+                // Calculamos el promedio del punto de partida Y de ambos dedos
+                touchStartY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+            } else {
+                esGestoValido = false;
+            }
+        }, { passive: true });
+
+        gestureArea.addEventListener('touchmove', (e) => {
+            if (!esGestoValido || e.touches.length !== 2) return;
+
+            const touchCurrentY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+            const distanciaDesplazada = touchCurrentY - touchStartY;
+
+            // Si arrastran los 2 dedos hacia abajo más de 120 píxeles, se activa el desbloqueo
+            if (distanciaDesplazada > 120) {
+                esGestoValido = false; // Evitamos ejecuciones repetidas continuas
+                otorgarAccesoExitoso();
+            }
+        }, { passive: true });
+
+        gestureArea.addEventListener('touchend', () => {
+            esGestoValido = false;
+        });
 
         async function cargarCanciones() {
             try {

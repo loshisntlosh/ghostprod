@@ -23,6 +23,9 @@
             margin: 0; padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Roboto, sans-serif;
             -webkit-tap-highlight-color: transparent;
+            /* Evita la selección de texto incómoda al mantener presionado en toda la app */
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         body {
@@ -59,6 +62,7 @@
         .login-input {
             width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #333;
             background: #222; color: #fff; font-size: 1.1em; text-align: center; margin-bottom: 15px; outline: none;
+            user-select: text !important; -webkit-user-select: text !important; /* Permitir escribir aquí */
         }
         .login-btn {
             width: 100%; padding: 14px; border-radius: 12px; border: none;
@@ -73,7 +77,7 @@
         h1 { font-size: 1.8em; font-weight: 700; margin-bottom: 20px; letter-spacing: -0.5px; }
         h2 { font-size: 1.2em; font-weight: 700; margin: 22px 0 12px 0; }
 
-        /* FILTROS CHIPS (BIBLIOTECA) */
+        /* FILTROS CHIPS */
         .library-filters {
             display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px;
         }
@@ -85,23 +89,21 @@
         }
         .filter-chip.active { background: var(--apple-accent); color: #000; }
 
-        /* INTERACTIVIDAD LONG PRESS PLAYLISTS */
+        /* PLAYLIST ROW LONG PRESS CONTAINER */
         .playlist-row-container {
             transition: transform 0.15s ease, opacity 0.15s ease;
-            user-select: none;
-            -webkit-user-select: none;
         }
         .playlist-row-container.pressing {
-            transform: scale(0.95);
-            opacity: 0.8;
+            transform: scale(0.97);
+            opacity: 0.85;
         }
 
-        /* FILAS DE ARTISTAS REDONDOS */
+        /* FILAS ARTISTAS */
         .artist-row { display: flex; align-items: center; gap: 15px; padding: 12px 0; cursor: pointer; }
         .artist-avatar { width: 52px; height: 52px; border-radius: 50%; background: #333; background-size: cover; background-position: center; flex-shrink: 0; }
         .artist-name { font-size: 1em; font-weight: 600; color: #fff; }
 
-        /* TOP RESULT BUSCADOR */
+        /* TOP RESULT */
         .top-result-card {
             background: #181818; border-radius: 12px; padding: 20px; margin-bottom: 20px;
             display: flex; flex-direction: column; gap: 12px; cursor: pointer;
@@ -112,7 +114,7 @@
         .top-result-name { font-size: 1.6em; font-weight: 700; color: #fff; }
         .top-result-badge { background: rgba(255,255,255,0.1); color: #fff; padding: 4px 10px; border-radius: 20px; font-size: 0.75em; font-weight: 700; align-self: flex-start; text-transform: uppercase; }
 
-        /* GRILLA RECIENTES */
+        /* RECIENTES */
         .grid-recientes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
         .tarjeta-reciente {
             background: var(--bg-tarjeta); border-radius: 6px; display: flex;
@@ -126,33 +128,37 @@
         }
         .tarjeta-reciente span { font-size: 0.85em; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 5px; }
 
-        /* FILAS DE CANCIONES (¡REPRODUCCIÓN EN TODA EL ÁREA!) */
-        .track-row { display: flex; align-items: center; gap: 15px; padding: 10px 0; cursor: pointer; background: transparent; position: relative; width: 100%; }
+        /* RECUADROS DE CANCIÓN TOTALMENTE SELECCIONABLES */
+        .track-row { 
+            display: flex; align-items: center; gap: 15px; padding: 10px 0; 
+            background: transparent; position: relative; width: 100%; 
+            touch-action: pan-y; /* Previene gestos raros nativos del navegador */
+        }
         .track-cover { width: 48px; height: 48px; border-radius: 4px; background: #282828; background-size: cover; background-position: center; flex-shrink: 0; object-fit: cover; }
-        .track-meta { flex: 1; min-width: 0; pointer-events: none; } /* Hace que tocar el texto actúe en la fila contenedora */
+        .track-meta { flex: 1; min-width: 0; pointer-events: none; } 
         .track-title { font-size: 0.95em; font-weight: 500; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .track-artist { font-size: 0.85em; color: var(--texto-secundario); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: inline-block; margin-top: 2px; }
         
-        .track-actions { display: flex; align-items: center; gap: 15px; background: transparent; position: relative; z-index: 10; }
-        .btn-heart { background: none; border: none; color: var(--texto-secundario); font-size: 1.2em; cursor: pointer; transition: transform 0.15s; }
+        .track-actions { display: flex; align-items: center; gap: 15px; background: transparent; position: relative; z-index: 50; }
+        .btn-heart { background: none; border: none; color: var(--texto-secundario); font-size: 1.2em; cursor: pointer; transition: transform 0.15s; padding: 6px; }
         .btn-heart.active { color: var(--apple-accent); transform: scale(1.15); }
-        .btn-more { background: none; border: none; color: var(--texto-secundario); font-size: 1.2em; padding: 5px; cursor: pointer; }
+        .btn-more { background: none; border: none; color: var(--texto-secundario); font-size: 1.2em; padding: 6px; cursor: pointer; }
 
-        /* CONTENEDOR SWIPE TÁCTIL */
+        /* CONTENEDORES SWIPE OPTIMIZADOS */
         .swipe-container { position: relative; overflow: hidden; width: 100%; border-radius: 8px; margin-bottom: 2px; background-color: #000; flex-shrink: 0; }
         .swipe-background {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 20px; font-weight: bold; font-size: 1.2em; color: white; z-index: 1;
         }
-        .swipe-content { position: relative; background: var(--bg-principal); z-index: 2; transition: transform 0.1s ease-out; width: 100%; padding: 2px 10px; }
+        .swipe-content { position: relative; background: var(--bg-principal); z-index: 2; width: 100%; padding: 2px 10px; transform: translateX(0px); }
 
         /* BUSCADOR */
-        .search-box { width: 100%; padding: 14px 16px; border-radius: 8px; border: none; background: #222; color: #fff; font-size: 1em; outline: none; margin-bottom: 15px; }
+        .search-box { width: 100%; padding: 14px 16px; border-radius: 8px; border: none; background: #222; color: #fff; font-size: 1em; outline: none; margin-bottom: 15px; user-select: text !important; -webkit-user-select: text !important; }
         .search-history-header { display: flex; justify-content: space-between; align-items: center; margin: 15px 0 10px 0; }
         .btn-clear-history { background: none; border: none; color: var(--apple-accent); font-size: 0.85em; font-weight: 600; cursor: pointer; }
 
-        /* SECCIÓN CREAR PLAYLIST */
+        /* BOX CREAR PLAYLIST */
         .create-premium-box {
             background: linear-gradient(135deg, #1e1e1e 0%, #151515 100%);
             border-radius: 20px; padding: 30px 24px; border: 1px solid #282828;
@@ -163,16 +169,15 @@
         .create-input-premium {
             width: 100%; background: transparent; border: none; border-bottom: 2px solid #333;
             color: #fff; font-size: 1.4em; font-weight: 600; text-align: center; padding: 10px 0;
-            outline: none; margin-bottom: 30px; transition: border-color 0.3s;
+            outline: none; margin-bottom: 30px; transition: border-color 0.3s; user-select: text !important; -webkit-user-select: text !important;
         }
         .create-input-premium:focus { border-color: var(--apple-accent); }
         .create-actions-row { display: flex; gap: 12px; }
         .btn-premium-action { flex: 1; padding: 14px; border-radius: 25px; border: none; font-weight: 700; font-size: 0.95em; cursor: pointer; transition: transform 0.1s; }
         .btn-premium-action.cancel { background: #282828; color: #fff; }
         .btn-premium-action.save { background: var(--apple-accent); color: #000; }
-        .btn-premium-action:active { transform: scale(0.97); }
 
-        /* MINI REPRODUCTOR ESTILO SPOTIFY CON BARRA VERDE INTERNA */
+        /* MINI PLAYER SPOTIFY PROGRESIVO */
         .mini-player {
             position: fixed; bottom: 65px; left: 5px; right: 5px;
             background: #1f1f1f; border-radius: 8px; padding: 8px 12px 11px 12px;
@@ -184,16 +189,10 @@
         .mini-artist { font-size: 0.75em; color: var(--texto-secundario); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .mini-controls { display: flex; align-items: center; gap: 15px; }
         .mini-btn { background: none; border: none; color: #fff; font-size: 1.4em; cursor: pointer; }
-        
-        /* Barra mini progreso Spotify */
-        .mini-progress-container {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background: rgba(255,255,255,0.1);
-        }
-        .mini-progress-bar {
-            height: 100%; width: 0%; background: var(--apple-accent); transition: width 0.1s linear;
-        }
+        .mini-progress-container { position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background: rgba(255,255,255,0.1); }
+        .mini-progress-bar { height: 100%; width: 0%; background: var(--apple-accent); transition: width 0.1s linear; }
 
-        /* NAV BAR INFERIOR */
+        /* NAV BAR */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
             background: var(--nav-bg); border-top: 1px solid #222;
@@ -203,10 +202,12 @@
         .nav-item.active { color: #fff; }
         .nav-item svg { width: 22px; height: 22px; fill: currentColor; }
 
-        /* SOLUCIÓN AL COLA DESPLEGABLE CON SCROLL TOTAL INTEGRADO */
+        /* LISTAS DESPLEGABLES CON SCROLL PERFECTO E ILIMITADO */
         .playlist-view-container { 
-            display: none; opacity: 0; overflow-y: auto; overflow-x: hidden;
-            max-height: 450px; margin-top: 10px; padding-left: 5px; 
+            display: none; opacity: 0; 
+            overflow-y: auto !important; /* Asegura scroll vertical total */
+            overflow-x: hidden;
+            max-height: 500px; margin-top: 10px; padding-left: 5px; 
             border-left: 2px solid var(--apple-accent);
             transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
         }
@@ -459,13 +460,12 @@
         </div>
     </nav>
 
-    <!-- MODAL RE-DISEÑADO ACCIONES DE CANCIÓN CON SELECCIÓN DE PLAYLIST E "IR A ARTISTA" -->
+    <!-- MODAL ACCIONES -->
     <div id="modalPlaylist" class="modal-playlist">
         <div class="modal-content">
             <h3 id="modalTrackTitulo" style="font-size:1.1em; text-align:center; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Opciones</h3>
             <p id="modalTrackArtista" style="font-size:0.85em; color:var(--texto-secundario); text-align:center; margin-bottom:15px;"></p>
             
-            <!-- Opción directa Premium para viajar al perfil de artista -->
             <button id="btnModalIrAlArtista" style="width:100%; padding:12px; background:rgba(255,255,255,0.07); color:var(--apple-accent); border:1px solid #333; border-radius:8px; font-weight:700; margin-bottom:15px; cursor:pointer;">👤 Ir al perfil del Artista</button>
             
             <div style="font-size:0.85em; color:var(--texto-secundario); font-weight:600; margin-bottom:5px;">Agregar a una playlist:</div>
@@ -474,7 +474,7 @@
         </div>
     </div>
 
-    <!-- MENÚ FLOTANTE CONTEXTUAL DE PLAYLISTS (LONG PRESS) -->
+    <!-- MENÚ PLAYLISTS -->
     <div id="contextMenuOverlay" class="context-menu-overlay" onclick="cerrarMenuContextualPlaylist()">
         <div class="context-menu-box" onclick="event.stopPropagation()">
             <div class="context-menu-title" id="contextMenuPlaylistTitulo">Opciones de Playlist</div>
@@ -521,7 +521,7 @@
 
         document.getElementById('loginBtn').addEventListener('click', () => login(document.getElementById('passwordInput').value));
 
-        // GESTO MULTI-TOUCH LOGIN
+        // GESTO LOGIN MULTI-TOUCH
         let touchStartY = 0; let esGestoValido = false;
         document.getElementById('gestureArea').addEventListener('touchstart', (e) => {
             if (e.touches.length === 2) { esGestoValido = true; touchStartY = (e.touches[0].clientY + e.touches[1].clientY) / 2; }
@@ -573,13 +573,12 @@
             if (idSec === 'sec-biblioteca') renderizarBiblioteca();
         }
 
-        // CREACIÓN DE FILA: AHORA TODA EL ÁREA LANZA LA REPRODUCCIÓN INDEPENDIENTEMENTE DE DÓNDE SE TOQUE
+        // CREACIÓN DE FILA NORMAL (REPRODUCE AL SELECCIONAR CUALQUIER PARTE DEL RECUADRO)
         function crearFilaCancion(track, contenedorLista, contextColaDinamica = false) {
             const esFav = datosUsuario.favoritos.includes(track.archivo_url);
             const fila = document.createElement('div');
             fila.className = 'track-row';
             
-            // El click en cualquier parte de la fila reproduce la canción
             fila.onclick = () => {
                 reproducirTrackDirecto(track.archivo_url, contextColaDinamica);
             };
@@ -596,12 +595,12 @@
                 </div>
             `;
             
-            // Detenemos la propagación en los botones laterales para que no reproduzcan al tocarlos
             fila.querySelector('.btn-heart').onclick = (e) => { e.stopPropagation(); toggleFavorito(track.archivo_url, e.target); };
             fila.querySelector('.btn-more').onclick = (e) => { e.stopPropagation(); abrirModalPlaylist(track.archivo_url); };
             contenedorLista.appendChild(fila);
         }
 
+        // CREACIÓN DE FILA TÁCTIL INTELIGENTE (SWIPE INTEGRADO SIN ACCIDENTES NI DESLIZAMIENTOS FALSOS)
         function crearFilaConSwipe(track, contenedorLista, idPlaylistOrigen) {
             const swipeContainer = document.createElement('div');
             swipeContainer.className = 'swipe-container';
@@ -618,9 +617,6 @@
             
             const filaInterna = document.createElement('div');
             filaInterna.className = 'track-row';
-            filaInterna.onclick = () => {
-                reproducirDesdeContextoEspecial(track.archivo_url, idPlaylistOrigen);
-            };
             
             filaInterna.innerHTML = `
                 <div class="track-cover" style="background-image: url('${track.portada_url}')"></div>
@@ -634,7 +630,11 @@
                 </div>
             `;
 
+            // Acciones directas blindadas sin propagar deslizamientos falsos
+            filaInterna.querySelector('.btn-heart').ontouchstart = (e) => e.stopPropagation();
             filaInterna.querySelector('.btn-heart').onclick = (e) => { e.stopPropagation(); toggleFavorito(track.archivo_url, e.target); };
+            
+            filaInterna.querySelector('.btn-more').ontouchstart = (e) => e.stopPropagation();
             filaInterna.querySelector('.btn-more').onclick = (e) => { e.stopPropagation(); abrirModalPlaylist(track.archivo_url); };
 
             swipeContent.appendChild(filaInterna);
@@ -642,29 +642,66 @@
             swipeContainer.appendChild(swipeContent);
             contenedorLista.appendChild(swipeContainer);
 
-            let startX = 0; let currentX = 0; let isSwiping = false;
+            // CONTROL TÁCTIL AVANZADO: MÁXIMA PRECISIÓN
+            let startX = 0; let startY = 0; 
+            let currentX = 0; let currentY = 0;
+            let isSwiping = false; let swipeDirectionChecked = false;
 
-            swipeContent.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; isSwiping = true; swipeContent.style.transition = 'none'; }, {passive:true});
+            swipeContent.addEventListener('touchstart', (e) => { 
+                startX = e.touches[0].clientX; 
+                startY = e.touches[0].clientY;
+                isSwiping = true; 
+                swipeDirectionChecked = false;
+                swipeContent.style.transition = 'none'; 
+            }, {passive:true});
+
             swipeContent.addEventListener('touchmove', (e) => {
                 if (!isSwiping) return;
                 currentX = e.touches[0].clientX;
+                currentY = e.touches[0].clientY;
+                
                 let diffX = currentX - startX;
-                if (diffX > 120) diffX = 120; if (diffX < -120) diffX = -120;
-                swipeContent.style.transform = `translateX(${diffX}px)`;
+                let diffY = currentY - startY;
 
-                if (diffX < 0) {
-                    let pct = Math.min(Math.abs(diffX) / 80, 1);
-                    swipeBg.style.backgroundColor = `rgba(${34 + (219 - 34)*pct}, ${34 + (20 - 34)*pct}, ${34 + (20 - 34)*pct}, 1)`;
-                } else {
-                    let pct = Math.min(diffX / 80, 1);
-                    swipeBg.style.backgroundColor = `rgba(${34 + (30 - 34)*pct}, ${34 + (215 - 34)*pct}, ${34 + (96 - 34)*pct}, 1)`;
+                // Si se mueve verticalmente más que horizontalmente, cancelamos el swipe para dejar hacer scroll limpio
+                if (!swipeDirectionChecked) {
+                    if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > 5) {
+                        isSwiping = false; // Cancelar deslizamiento de canción, es un scroll vertical normal
+                        return;
+                    }
+                    if (Math.abs(diffX) > 10) { swipeDirectionChecked = true; }
+                }
+
+                // Si pasó el filtro de dirección horizontal, movemos el contenedor
+                if (swipeDirectionChecked) {
+                    if (diffX > 120) diffX = 120; if (diffX < -120) diffX = -120;
+                    swipeContent.style.transform = `translateX(${diffX}px)`;
+
+                    if (diffX < 0) {
+                        let pct = Math.min(Math.abs(diffX) / 80, 1);
+                        swipeBg.style.backgroundColor = `rgba(${34 + (219 - 34)*pct}, ${34 + (20 - 34)*pct}, ${34 + (20 - 34)*pct}, 1)`;
+                    } else {
+                        let pct = Math.min(diffX / 80, 1);
+                        swipeBg.style.backgroundColor = `rgba(${34 + (30 - 34)*pct}, ${34 + (215 - 34)*pct}, ${34 + (96 - 34)*pct}, 1)`;
+                    }
                 }
             }, {passive:true});
 
             swipeContent.addEventListener('touchend', () => {
-                isSwiping = false; let diffX = currentX - startX;
+                let diffX = currentX - startX;
+                let totalMove = Math.abs(diffX);
+                
                 swipeContent.style.transition = 'transform 0.25s cubic-bezier(0.25, 1, 0.5, 1)';
+                isSwiping = false;
 
+                // DIAGNÓSTICO: Si el usuario movió menos de 10px, es un "TAP/CLICK" intencional para REPRODUCIR
+                if (totalMove < 10 || !swipeDirectionChecked) {
+                    swipeContent.style.transform = 'translateX(0px)';
+                    reproducirDesdeContextoEspecial(track.archivo_url, idPlaylistOrigen);
+                    return;
+                }
+
+                // Procesamiento real de arrastres completos
                 if (diffX < -85) {
                     swipeContent.style.transform = 'translateX(-100%)';
                     setTimeout(() => {
@@ -730,6 +767,8 @@
                 colaActual = cancionesGlobales.filter(c => c.artista?.toLowerCase() === name);
             } else if (idContexto === "favoritos") {
                 colaActual = cancionesGlobales.filter(c => datosUsuario.favoritos.includes(c.archivo_url));
+            } else if (idContexto === "general_all") {
+                colaActual = cancionesGlobales;
             } else {
                 let urls = datosUsuario.playlists[idContexto] || [];
                 colaActual = cancionesGlobales.filter(c => urls.includes(c.archivo_url));
@@ -739,7 +778,7 @@
         }
 
         function eliminarCancionDePlaylist(url, idPlaylist) {
-            if (idPlaylist.startsWith('artista_')) return;
+            if (idPlaylist.startsWith('artista_') || idPlaylist === "general_all") return;
             if (idPlaylist === "favoritos") {
                 datosUsuario.favoritos = datosUsuario.favoritos.filter(item => item !== url);
             } else {
@@ -1089,7 +1128,7 @@
             startYGesture = 0; currentYGesture = 0;
         });
 
-        // REPRODUCTOR AUDIO CON BARRA VERDE DE PROGRESO INTEGRADA EN EL MINI-PLAYER
+        // REPRODUCTOR AUDIO
         function ejecutarAudio() {
             if (indexCola < 0 || indexCola >= colaActual.length) return;
             const track = colaActual[indexCola];
@@ -1134,16 +1173,11 @@
 
         function formatTime(sec) { if(isNaN(sec)) return "0:00"; let m = Math.floor(sec / 60), s = Math.floor(sec % 60); return `${m}:${s < 10 ? '0' : ''}${s}`; }
         
-        // Sincronización en tiempo real de ambas barras de progreso (Normal y Mini Spotify)
         audio.addEventListener('timeupdate', () => {
             if (!audio.duration) return;
             const porcentajeProgreso = (audio.currentTime / audio.duration) * 100;
-            
-            // Barra completa
             document.getElementById('fullSeekProgress').style.width = porcentajeProgreso + "%";
             document.getElementById('fullCurrentTime').textContent = formatTime(audio.currentTime);
-            
-            // Barra Mini Verde estilo Spotify
             document.getElementById('miniProgressBar').style.width = porcentajeProgreso + "%";
         });
         
@@ -1159,7 +1193,7 @@
             fullPlayer.classList.remove('open'); fullPlayer.style.transform = 'translateY(100%)';
         }
 
-        // CONTROL POPUP INTEGRADO CON BOTÓN "IR AL ARTISTA" DESDE LOS 3 PUNTOS
+        // CONTROL ACCIONES CANCIÓN
         let trackObjetivoPlaylist = "";
         function abrirModalPlaylist(url) {
             trackObjetivoPlaylist = url;
@@ -1169,7 +1203,6 @@
                 document.getElementById('modalTrackTitulo').textContent = trackObjeto.titulo || "Opciones";
                 document.getElementById('modalTrackArtista').textContent = trackObjeto.artista || "";
                 
-                // Configurar acción del nuevo botón "Ir al Artista"
                 document.getElementById('btnModalIrAlArtista').onclick = () => {
                     document.getElementById('modalPlaylist').style.display = 'none';
                     verPerfilArtista(trackObjeto.artista, idSeccionActual());

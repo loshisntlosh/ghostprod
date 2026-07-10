@@ -7,8 +7,6 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Music App Premium</title>
-    <!-- Importamos Supabase para la lógica en tiempo real de AllTogether -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --bg-principal: #121212;
@@ -78,33 +76,6 @@
         h1 { font-size: 1.8em; font-weight: 700; margin-bottom: 20px; letter-spacing: -0.5px; }
         h2 { font-size: 1.2em; font-weight: 700; margin: 22px 0 12px 0; }
 
-        /* BUSCADOR ESTILOS COMPLEMENTARIOS */
-        .search-box {
-            width: 100%; padding: 14px; border-radius: 12px; border: none; background: #282828;
-            color: #fff; font-size: 1em; margin-bottom: 20px; outline: none;
-            user-select: text !important; -webkit-user-select: text !important;
-        }
-        .search-history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .btn-clear-history { background: none; border: none; color: var(--texto-secundario); font-size: 0.85em; cursor: pointer; }
-
-        /* INICIO RECIENTES */
-        .grid-recientes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .tarjeta-reciente { background: #282828; display: flex; align-items: center; gap: 12px; border-radius: 6px; overflow: hidden; cursor: pointer; padding-right: 10px; }
-        .tarjeta-reciente .img-placeholder { width: 56px; height: 56px; background-size: cover; background-position: center; flex-shrink: 0; }
-        .tarjeta-reciente span { font-size: 0.85em; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-        /* CREAR PLAYLIST EXTRAS */
-        .create-premium-box { background: #181818; padding: 25px; border-radius: 16px; border: 1px solid #282828; }
-        .create-input-premium {
-            width: 100%; padding: 14px; border-radius: 8px; border: 1px solid #333; background: #222;
-            color: #fff; font-size: 1em; margin-bottom: 20px; outline: none;
-            user-select: text !important; -webkit-user-select: text !important;
-        }
-        .create-actions-row { display: flex; gap: 10px; justify-content: flex-end; }
-        .btn-premium-action { padding: 10px 20px; border-radius: 20px; border: none; font-weight: 600; cursor: pointer; }
-        .btn-premium-action.cancel { background: #333; color: #fff; }
-        .btn-premium-action.save { background: var(--apple-accent); color: #000; }
-
         /* FILTROS CHIPS */
         .library-filters {
             display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px;
@@ -171,7 +142,7 @@
             background: var(--nav-bg); border-top: 1px solid #222;
             display: flex; justify-content: space-around; align-items: center; z-index: 1000;
         }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--texto-secundario); font-size: 0.65em; gap: 4px; cursor: pointer; background: transparent; border: none;}
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--texto-secundario); font-size: 0.65em; gap: 4px; cursor: pointer; }
         .nav-item.active { color: #fff; }
         .nav-item svg { width: 22px; height: 22px; fill: currentColor; }
 
@@ -259,7 +230,6 @@
 </head>
 <body>
 
-    <!-- INTERFAZ LOGIN -->
     <div id="loginOverlay" class="login-overlay">
         <div class="login-box">
             <h2>Música Privada</h2>
@@ -276,13 +246,14 @@
             <div style="font-size:3.5em; margin-bottom:15px;">↕️⚡</div>
             <h3>Gesto Multi-touch</h3>
             <p style="color:var(--texto-secundario); font-size:0.9em; text-align:center; max-width:260px; margin-top:8px;">
-                Dos dedos hacia <b>ARRIBA</b> para entrar como Losh.<br>Dos dedos hacia <b>ABAJO</b> para entrar como Luke.
+                Coloca <b>dos dedos</b> sobre la pantalla y desliza:<br><br>
+                ⬆️ Hacia <b>ARRIBA</b> para entrar como <b>Losh</b>.<br>
+                ⬇️ Hacia <b>ABAJO</b> para entrar como <b>Luke</b>.
             </p>
         </div>
         <button onclick="document.getElementById('gestureOverlay').style.display='none'" style="margin-bottom:40px; padding:10px 25px; background:#222; color:#fff; border:none; border-radius:20px; font-weight:600;">Volver al teclado</button>
     </div>
 
-    <!-- NÚCLEO APP -->
     <div id="mainAppWrapper">
         <section id="sec-inicio" class="app-section active">
             <h1 id="saludoUsuario">Hola</h1>
@@ -300,7 +271,6 @@
             <div id="listaRecomendados"></div>
         </section>
 
-        <!-- BUSCADOR -->
         <section id="sec-buscar" class="app-section">
             <h1>Buscar</h1>
             <input type="text" id="searchInput" class="search-box" placeholder="Artistas, canciones...">
@@ -321,7 +291,6 @@
             <div id="resultadosBusqueda"></div>
         </section>
 
-        <!-- BIBLIOTECA -->
         <section id="sec-biblioteca" class="app-section">
             <h1>Tu biblioteca</h1>
             <div class="library-filters">
@@ -333,7 +302,6 @@
             <div id="lib-content-artists" style="display:none;"></div>
         </section>
 
-        <!-- DETALLE ARTISTA -->
         <section id="sec-artista-detalle" class="app-section">
             <button class="btn-back-nav" onclick="volverAtrasArtista()">← Volver</button>
             <div class="artist-header-view">
@@ -346,20 +314,18 @@
             <div id="artDetalleListaCanciones"></div>
         </section>
 
-        <!-- CREAR PLAYLIST -->
         <section id="sec-crear" class="app-section">
             <h1>Crear Playlist</h1>
             <div class="create-premium-box">
                 <input type="text" id="newPlaylistName" class="create-input-premium" placeholder="Mi Playlist #1">
                 <div class="create-actions-row">
-                    <button class="btn-premium-action cancel" onclick="cambiarSeccion('sec-biblioteca', document.getElementById('navBtnBiblioteca'))">Cancelar</button>
+                    <button class="btn-premium-action cancel" onclick="cambiarSeccion('sec-biblioteca')">Cancelar</button>
                     <button id="btnCreatePlaylist" class="btn-premium-action save">Crear</button>
                 </div>
             </div>
         </section>
     </div>
 
-    <!-- MINI PLAYER -->
     <div class="mini-player" id="miniPlayer">
         <div class="track-cover" id="miniCover" onclick="abrirReproductorCompleto()"></div>
         <div class="mini-info" id="miniInfoContainer" onclick="abrirReproductorCompleto()">
@@ -374,27 +340,6 @@
         </div>
     </div>
 
-    <!-- BARRA DE NAVEGACIÓN INFERIOR (BOTTOM NAV) -->
-    <div class="bottom-nav">
-        <button class="nav-item active" id="navBtnInicio" onclick="cambiarSeccion('sec-inicio', this)">
-            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-            <span>Inicio</span>
-        </button>
-        <button class="nav-item" id="navBtnBuscar" onclick="cambiarSeccion('sec-buscar', this)">
-            <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-            <span>Buscar</span>
-        </button>
-        <button class="nav-item" id="navBtnBiblioteca" onclick="cambiarSeccion('sec-biblioteca', this)">
-            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
-            <span>Biblioteca</span>
-        </button>
-        <button class="nav-item" id="navBtnCrear" onclick="cambiarSeccion('sec-crear', this)">
-            <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-            <span>Crear Lista</span>
-        </button>
-    </div>
-
-    <!-- REPRODUCTOR COMPLETO MODIFICADO -->
     <div id="fullPlayerOverlay" class="full-player-overlay">
         <div class="swipe-handle-bar"></div>
         <div class="full-header">
@@ -431,7 +376,6 @@
             <button class="full-ctrl-btn" id="fullNextBtn">⏭</button>
         </div>
 
-        <!-- CONTROL DE VOLUMEN CONECTADO AL DISPOSITIVO -->
         <div class="volume-container">
             <span class="volume-icon">🔈</span>
             <div class="volume-slider-wrapper">
@@ -440,18 +384,15 @@
             <span class="volume-icon" style="text-align: right;">🔊</span>
         </div>
 
-        <!-- PANEL DE ESTADOS TÁCTILES / ALLTOGETHER -->
         <div class="alltogether-box">
             <div class="alltogether-header">
-                <span>👥</span> AllTogether (Estado de Usuarios Realtime)
+                <span>👥</span> AllTogether (Estado de Usuarios)
             </div>
             <div id="alltogetherUsersList">
-                <!-- Se inyecta dinámicamente usando Supabase Presence -->
-            </div>
+                </div>
         </div>
     </div>
 
-    <!-- MODAL PLAYLIST ACCIONES -->
     <div id="modalPlaylist" class="modal-playlist">
         <div class="modal-content">
             <h3 id="modalTrackTitulo">Opciones</h3>
@@ -462,7 +403,6 @@
         </div>
     </div>
 
-    <!-- CONTEXT MENU PLAYLISTS -->
     <div id="contextMenuOverlay" class="context-menu-overlay" onclick="cerrarMenuContextualPlaylist()">
         <div class="context-menu-box" onclick="event.stopPropagation()">
             <div class="context-menu-title" id="contextMenuPlaylistTitulo">Opciones</div>
@@ -479,26 +419,15 @@
         const SUPABASE_URL = "https://xkbxlrmodzucmpxcnwtj.supabase.co"; 
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrYnhscm1vZHp1Y21weGNud3RqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyNjA4MjIsImV4cCI6MjA5ODgzNjgyMn0.GQdaROzvGo1JTd3IYb5vDetuO5cq6UiGFrGHN7azWy8";
 
-        // Inicializamos el cliente oficial de Supabase de manera segura
-        let supabase = null;
-        try {
-            if (typeof supabase !== 'undefined' && supabase.createClient) {
-                supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            }
-        } catch(err) {
-            console.error("Error al instanciar Supabase:", err);
-        }
-
         let usuarioActual = ""; 
         let cancionesGlobales = [];
         let datosUsuario = { favoritos: [], recientes: [], buscarHistorial: [], playlists: {}, pinnedPlaylists: [], playlistCovers: {} };
-        let playlistSeleccionadaContexto = ""; // Faltaba declarar esta variable global crítica
 
-        // Lista base local de respaldo
+        // Simulación adaptable de Base de Datos de Usuarios para "AllTogether"
         let baseUsuariosAllTogether = [
-            { nombre: "Losh", online: false },
+            { nombre: "Losh", online: true },
             { nombre: "Luke", online: false },
-            { nombre: "Mateo", online: false },
+            { nombre: "Mateo", online: true }, 
             { nombre: "Sara", online: false }
         ];
 
@@ -506,16 +435,19 @@
         let indexCola = -1;
         let isPlaying = false;
         let stackNavegacion = []; 
-        let realtimeChannel = null;
 
         const audio = document.getElementById('audioPlayer');
 
         function login(codigo) {
-            let pass = codigo.toLowerCase().trim();
-            if (pass === "monter1a" || pass === "losh") { usuarioActual = "Losh"; } 
-            else if (pass === "amigo123" || pass === "luke") { usuarioActual = "Luke"; } 
+            if (codigo === "monter1a" || codigo === "losh") { usuarioActual = "Losh"; } 
+            else if (codigo === "amigo123" || codigo === "luke") { usuarioActual = "Luke"; } 
             else { document.getElementById('loginError').textContent = "Código inválido."; return; }
             
+            // Forzar que el usuario logueado esté siempre Online en la lista simulada
+            baseUsuariosAllTogether.forEach(u => {
+                if(u.nombre.toLowerCase() === usuarioActual.toLowerCase()) u.online = true;
+            });
+
             document.getElementById('saludoUsuario').textContent = "Hola, " + usuarioActual;
             document.getElementById('loginOverlay').style.opacity = '0';
             setTimeout(() => {
@@ -525,30 +457,48 @@
             
             cargarDatosPerfil();
             cargarCancionesSupabase();
-            conectarRealtimePresence();
+            renderizarAllTogether();
         }
 
         document.getElementById('loginBtn').addEventListener('click', () => login(document.getElementById('passwordInput').value));
 
-        // GESTO LOGIN MULTI-TOUCH
-        let touchStartY = 0; let esGestoValido = false;
-        document.getElementById('gestureArea').addEventListener('touchstart', (e) => {
+        // FIX: GESTO LOGIN MULTI-TOUCH INTELIGENTE Y SEGURO
+        let touchStartY = 0; 
+        let esGestoValido = false;
+        const gestureArea = document.getElementById('gestureArea');
+
+        gestureArea.addEventListener('touchstart', (e) => {
             if (e.touches.length === 2) { 
                 esGestoValido = true; 
                 touchStartY = (e.touches[0].clientY + e.touches[1].clientY) / 2; 
             }
-        }, {passive: true});
+        }, { passive: false });
 
-        document.getElementById('gestureArea').addEventListener('touchmove', (e) => {
+        gestureArea.addEventListener('touchmove', (e) => {
             if (!esGestoValido || e.touches.length !== 2) return;
+            
+            // Forzamos al navegador a no realizar scroll ni comportamientos por defecto
+            e.preventDefault(); 
+            
             let currentY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
             let distancia = currentY - touchStartY;
-            if (Math.abs(distancia) > 80) {
+            
+            // Bajamos el umbral a 65px para máxima precisión y respuesta veloz
+            if (Math.abs(distancia) > 65) {
                 esGestoValido = false; 
                 document.getElementById('gestureOverlay').style.display = 'none';
-                if (distancia < 0) login("losh"); else login("luke");
+                
+                if (distancia < 0) {
+                    login("losh"); // Desliza hacia ARRIBA (distancia negativa)
+                } else {
+                    login("luke"); // Desliza hacia ABAJO (distancia positiva)
+                }
             }
-        }, {passive: true});
+        }, { passive: false });
+
+        gestureArea.addEventListener('touchend', () => {
+            esGestoValido = false;
+        });
 
         function cargarDatosPerfil() {
             let infoLocal = localStorage.getItem("perfil_v4_" + usuarioActual);
@@ -566,10 +516,7 @@
                 cancionesGlobales = await response.json();
                 renderizarSeccionInicio();
                 renderizarHistorialBusqueda();
-            } catch (e) { 
-                console.error("Fallo fetch de canciones, usando mock vacío", e); 
-                cancionesGlobales = [];
-            }
+            } catch (e) { console.error(e); }
         }
 
         function cambiarSeccion(idSec, elemento) {
@@ -590,50 +537,20 @@
             audio.volume = e.target.value;
         });
 
-        // 👥 LOGICA ALLTOGETHER CON SUPABASE REALTIME PRESENCE Protegida
-        function conectarRealtimePresence() {
-            if(!supabase) {
-                console.warn("Supabase no inicializado. AllTogether en modo local.");
-                actualizarListaUsuariosRealtime({});
-                return;
-            }
-            try {
-                realtimeChannel = supabase.channel('alltogether_global', {
-                    config: { presence: { key: usuarioActual } }
-                });
-
-                realtimeChannel
-                    .on('presence', { event: 'sync' }, () => {
-                        const estadoUsuariosSupabase = realtimeChannel.presenceState();
-                        actualizarListaUsuariosRealtime(estadoUsuariosSupabase);
-                    })
-                    .subscribe(async (status) => {
-                        if (status === 'SUBSCRIBED') {
-                            await realtimeChannel.track({ online: true, logueadoEn: new Date().toISOString() });
-                        }
-                    });
-            } catch(e) {
-                console.error("Error en conexión realtime Presence", e);
-            }
-        }
-
-        function actualizarListaUsuariosRealtime(presencias) {
+        // RENDERIZAR SECCIÓN ALLTOGETHER 
+        function renderizarAllTogether() {
             const contenedor = document.getElementById('alltogetherUsersList');
-            if(!contenedor) return;
             contenedor.innerHTML = "";
 
-            let usuariosActivos = Object.keys(presencias || {}).map(username => username.toLowerCase());
+            let otrosUsuarios = baseUsuariosAllTogether.filter(u => u.nombre.toLowerCase() !== usuarioActual.toLowerCase());
 
-            baseUsuariosAllTogether.forEach(u => {
-                if (u.nombre.toLowerCase() === usuarioActual.toLowerCase()) return; 
-
-                const esOnline = usuariosActivos.includes(u.nombre.toLowerCase());
+            otrosUsuarios.forEach(u => {
                 const fila = document.createElement('div');
                 fila.className = "user-status-row";
                 
-                let estadoTxt = esOnline ? "Online" : "Offline";
-                let puntoClase = esOnline ? "online" : "offline";
-                let botonInviteHTML = esOnline ? `<button class="btn-invite" onclick="enviarInvitacion('${u.nombre}')">Invite</button>` : '';
+                let estadoTxt = u.online ? "Online" : "Offline";
+                let puntoClase = u.online ? "online" : "offline";
+                let botonInviteHTML = u.online ? `<button class="btn-invite" onclick="enviarInvitacion('${u.nombre}')">Invite</button>` : '';
 
                 fila.innerHTML = `
                     <div class="user-info-side">
@@ -677,7 +594,6 @@
             contenedorLista.appendChild(fila);
         }
 
-        // FILA CON SWIPE OPTIMIZADO CON DETECCION RIGUROSA DE SCROLL
         function crearFilaConSwipe(track, contenedorLista, idPlaylistOrigen) {
             const swipeContainer = document.createElement('div');
             swipeContainer.className = 'swipe-container';
@@ -720,8 +636,7 @@
             let currentX = 0; let currentY = 0;
             let isSwiping = false; 
             let swipeDirectionChecked = false;
-            let haHabidoDesplazamientoSignificativo = false;
-            let esScrollVerticalDetectado = false; 
+            let haHabidoDesplazamientoSignificativo = false; 
 
             swipeContent.addEventListener('touchstart', (e) => { 
                 startX = e.touches[0].clientX; 
@@ -731,7 +646,6 @@
                 isSwiping = true; 
                 swipeDirectionChecked = false;
                 haHabidoDesplazamientoSignificativo = false;
-                esScrollVerticalDetectado = false;
                 swipeContent.style.transition = 'none'; 
             }, {passive:true});
 
@@ -743,12 +657,6 @@
                 let diffX = currentX - startX;
                 let diffY = currentY - startY;
 
-                if (Math.abs(diffY) > 8 && !swipeDirectionChecked) {
-                    esScrollVerticalDetectado = true;
-                    isSwiping = false;
-                    return;
-                }
-
                 if (!swipeDirectionChecked) {
                     if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > 5) {
                         isSwiping = false; 
@@ -756,11 +664,11 @@
                     }
                     if (Math.abs(diffX) > 10) { 
                         swipeDirectionChecked = true; 
-                        haHabidoDesplazamientoSignificativo = true;
+                        haHabidoDesplazamientoSignificativo = true; 
                     }
                 }
 
-                if (swipeDirectionChecked && !esScrollVerticalDetectado) {
+                if (swipeDirectionChecked) {
                     if (diffX > 120) diffX = 120; if (diffX < -120) diffX = -120;
                     swipeContent.style.transform = `translateX(${diffX}px)`;
 
@@ -778,11 +686,6 @@
                 let diffX = currentX - startX;
                 swipeContent.style.transition = 'transform 0.25s cubic-bezier(0.25, 1, 0.5, 1)';
                 isSwiping = false;
-
-                if (esScrollVerticalDetectado) {
-                    swipeContent.style.transform = 'translateX(0px)';
-                    return;
-                }
 
                 if (haHabidoDesplazamientoSignificativo) {
                     if (diffX < -85) {
@@ -832,7 +735,7 @@
                 document.querySelectorAll('.app-section').forEach(s => s.classList.remove('active'));
                 document.getElementById(destino).classList.add('active');
             } else {
-                cambiarSeccion('sec-biblioteca', document.getElementById('navBtnBiblioteca'));
+                cambiarSeccion('sec-biblioteca', document.querySelectorAll('.nav-item')[2]);
             }
         }
 
@@ -1208,14 +1111,6 @@
         document.getElementById('fullPrevBtn').addEventListener('click', () => { if(colaActual.length) { indexCola = (indexCola - 1 + colaActual.length) % colaActual.length; ejecutarAudio(); } });
         audio.addEventListener('ended', () => { if(colaActual.length) { indexCola = (indexCola + 1) % colaActual.length; ejecutarAudio(); } });
 
-        document.getElementById('fullHeartBtn').addEventListener('click', () => {
-            if (indexCola < 0 || !colaActual[indexCola]) return;
-            toggleFavorito(colaActual[indexCola].archivo_url, document.getElementById('fullHeartBtn'));
-        });
-        document.getElementById('fullAddPlaylistBtn').addEventListener('click', () => {
-            if (indexCola < 0 || !colaActual[indexCola]) return; abrirModalPlaylist(colaActual[indexCola].archivo_url);
-        });
-
         function formatTime(sec) { if(isNaN(sec)) return "0:00"; let m = Math.floor(sec / 60), s = Math.floor(sec % 60); return `${m}:${s < 10 ? '0' : ''}${s}`; }
         audio.addEventListener('timeupdate', () => {
             if (!audio.duration) return;
@@ -1262,7 +1157,7 @@
 
         document.getElementById('btnCreatePlaylist').addEventListener('click', () => {
             const input = document.getElementById('newPlaylistName'); const n = input.value.trim(); if(!n) return;
-            if(!datosUsuario.playlists[n]) { datosUsuario.playlists[n] = []; guardarDatosPerfil(); input.value=""; cambiarSeccion('sec-biblioteca', document.getElementById('navBtnBiblioteca')); }
+            if(!datosUsuario.playlists[n]) { datosUsuario.playlists[n] = []; guardarDatosPerfil(); input.value=""; cambiarSeccion('sec-biblioteca'); }
         });
 
         function toggleFavorito(url, boton) {

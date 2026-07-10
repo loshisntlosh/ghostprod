@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify Clone - Losh</title>
-    <!-- Iconos de FontAwesome para una interfaz limpia -->
+    <title>Reproductor Losh - Premium</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -26,185 +25,96 @@
         body {
             background-color: var(--bg-main);
             color: var(--text-main);
-            padding-bottom: 160px; /* Espacio para barra de reproducción y navegación */
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        .container {
-            padding: 20px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        h1 {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 24px;
-        }
-
-        h2 {
-            font-size: 18px;
-            font-weight: 700;
-            margin: 24px 0 12px 0;
-        }
-
-        /* --- ESCUCHADO RECIENTEMENTE (CARRUSEL DE TARJETAS HORIZONTALES) --- */
-        .horizontal-scroll {
-            display: flex;
-            gap: 12px;
-            overflow-x: auto;
-            scroll-behavior: smooth;
-            padding-bottom: 8px;
-        }
-
-        .horizontal-scroll::-webkit-scrollbar {
-            display: none; /* Ocultar barra para mantenerlo estético */
-        }
-
-        .recent-card {
-            background-color: var(--bg-card);
-            min-width: 110px;
-            max-width: 110px;
-            padding: 10px;
-            border-radius: 8px;
-            text-align: center;
-            transition: background 0.3s;
-        }
-
-        .recent-card:active {
-            background-color: var(--bg-card-hover);
-        }
-
-        .recent-thumb {
+        /* --- PANTALLA DE BLOQUEO / LOGIN (PRESERVADA Y FUNCIONAL) --- */
+        #auth-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            height: 90px;
-            background-color: #2e2e2e;
-            border-radius: 6px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-muted);
-        }
-
-        .recent-card p {
-            font-size: 11px;
-            font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* --- LISTAS PREDILECTAS (SLIDER ESTILIZADO) --- */
-        .playlists-slider {
-            display: flex;
-            gap: 12px;
-            overflow-x: auto;
-            padding-bottom: 8px;
-        }
-
-        .playlists-slider::-webkit-scrollbar {
-            display: none;
-        }
-
-        .playlist-item {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            min-width: 150px;
-            padding: 16px;
-            border-radius: 8px;
-            position: relative;
-            height: 80px;
+            height: 100%;
+            background-color: #000000;
+            z-index: 9999;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 340px;
+            text-align: center;
+        }
+
+        .auth-logo {
+            font-size: 40px;
+            color: var(--spotify-green);
+            margin-bottom: 20px;
+        }
+
+        .auth-input {
+            width: 100%;
+            padding: 14px;
+            background-color: #222;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            text-align: center;
+            margin-bottom: 15px;
+            outline: none;
+        }
+
+        .auth-input:focus {
+            border-color: var(--spotify-green);
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--spotify-green);
+            color: black;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-bottom: 25px;
+        }
+
+        /* Gesto / Patrón Lock */
+        .gesture-title {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        #gesture-canvas {
+            background-color: #111;
+            border-radius: 12px;
+            border: 1px solid #222;
             cursor: pointer;
         }
 
-        .playlist-item.all-tracks {
-            background: linear-gradient(135deg, #0575e6 0%, #00f260 100%);
+        /* --- INTERFAZ PRINCIPAL --- */
+        #app-content {
+            display: none; /* Se activa tras el Login exitoso */
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            padding-bottom: 160px;
         }
 
-        .playlist-title {
-            font-size: 14px;
-            font-weight: 700;
-        }
+        h1 { font-size: 28px; font-weight: 700; margin-bottom: 24px; }
+        h2 { font-size: 18px; font-weight: 700; margin: 24px 0 12px 0; }
 
-        .playlist-subtitle {
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        /* --- RECOMENDACIONES PARA TI (LISTA VERTICAL) --- */
-        .song-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .song-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background-color: transparent;
-            padding: 4px 0;
-        }
-
-        .song-info-block {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex: 1;
-            min-width: 0;
-        }
-
-        .song-cover {
-            width: 48px;
-            height: 48px;
-            background-color: #282828;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-muted);
-        }
-
-        .song-details {
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-        }
-
-        .song-title {
-            font-size: 14px;
-            font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .song-artist {
-            font-size: 12px;
-            color: var(--text-muted);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .song-actions {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            color: var(--text-muted);
-        }
-
-        .song-actions i:hover {
-            color: var(--text-main);
-        }
-
-        .heart-active {
-            color: var(--spotify-green) !important;
-        }
-
-        /* --- SISTEMA DE SESIÓN LUKE & ALLTOGETHER --- */
+        /* --- LÓGICA DE CONEXIÓN DE LUKE --- */
         .luke-status-bar {
             background-color: var(--bg-card);
             border-radius: 8px;
@@ -215,19 +125,14 @@
             justify-content: space-between;
         }
 
-        .user-badge {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
+        .user-badge { display: flex; align-items: center; gap: 8px; }
+        
         .status-dot {
             width: 8px;
             height: 8px;
             border-radius: 50%;
             background-color: #555;
         }
-
         .status-dot.online {
             background-color: var(--spotify-green);
             box-shadow: 0 0 8px var(--spotify-green);
@@ -244,11 +149,80 @@
             cursor: pointer;
         }
 
-        .btn-invite:hover {
-            border-color: var(--text-main);
+        /* --- ESCUCHADO RECIENTEMENTE (TARJETAS CORREGIDAS) --- */
+        .horizontal-scroll {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+        .horizontal-scroll::-webkit-scrollbar { display: none; }
+
+        .recent-card {
+            background-color: var(--bg-card);
+            min-width: 110px;
+            max-width: 110px;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .recent-thumb {
+            width: 100%;
+            height: 90px;
+            background-color: #2e2e2e;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+        }
+        .recent-card p {
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        /* --- MODAL DE INVITACIÓN ESTÉTICA --- */
+        /* --- LISTAS PREDILECTAS (NUEVO SLIDER ESTÉTICO) --- */
+        .playlists-slider {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+        .playlists-slider::-webkit-scrollbar { display: none; }
+
+        .playlist-item {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-width: 150px;
+            padding: 16px;
+            border-radius: 8px;
+            height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+        .playlist-item.all-tracks {
+            background: linear-gradient(135deg, #0575e6 0%, #00f260 100%);
+        }
+        .playlist-title { font-size: 14px; font-weight: 700; }
+        .playlist-subtitle { font-size: 11px; color: rgba(255, 255, 255, 0.8); }
+
+        /* --- RECOMENDACIONES PARA TI --- */
+        .song-list { display: flex; flex-direction: column; gap: 12px; }
+        .song-item { display: flex; align-items: center; justify-content: space-between; }
+        .song-info-block { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+        .song-cover { width: 48px; height: 48px; background-color: #282828; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); }
+        .song-details { display: flex; flex-direction: column; min-width: 0; }
+        .song-title { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .song-artist { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .song-actions { display: flex; align-items: center; gap: 16px; color: var(--text-muted); }
+        .heart-active { color: var(--spotify-green) !important; }
+
+        /* --- VENTANA EMERGENTE (MODAL INVITACIÓN) --- */
         .invite-modal {
             position: fixed;
             top: 20px;
@@ -260,61 +234,22 @@
             border-radius: 12px;
             padding: 16px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-            z-index: 2000;
+            z-index: 10000;
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+        .invite-modal.show { transform: translateX(-50%) translateY(0); }
+        .invite-header { display: flex; align-items: center; gap: 10px; font-weight: 700; margin-bottom: 8px; }
+        .invite-header i { color: var(--spotify-green); }
+        .invite-body { font-size: 13px; color: var(--text-muted); margin-bottom: 14px; }
+        .invite-actions { display: flex; justify-content: flex-end; gap: 10px; }
+        .btn-modal { padding: 8px 16px; border-radius: 20px; border: none; font-size: 12px; font-weight: 700; cursor: pointer; }
+        .btn-modal.accept { background-color: var(--spotify-green); color: black; }
+        .btn-modal.decline { background-color: transparent; color: var(--text-main); }
 
-        .invite-modal.show {
-            transform: translateX(-50%) translateY(0);
-        }
-
-        .invite-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .invite-header i {
-            color: var(--spotify-green);
-        }
-
-        .invite-body {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 14px;
-        }
-
-        .invite-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-
-        .btn-modal {
-            padding: 8px 16px;
-            border-radius: 20px;
-            border: none;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .btn-modal.accept {
-            background-color: var(--spotify-green);
-            color: black;
-        }
-
-        .btn-modal.decline {
-            background-color: transparent;
-            color: var(--text-main);
-        }
-
-        /* --- REPRODUCIENDO AHORA (MINI PLAYER) --- */
+        /* --- REPRODUCIENDO AHORA (BARRA REPRODUCTOR) --- */
         .now-playing-bar {
             position: fixed;
-            bottom: 65px; /* Justo arriba de la barra de navegación */
+            bottom: 65px;
             left: 5%;
             width: 90%;
             background-color: #1c1c1e;
@@ -326,71 +261,17 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.4);
             z-index: 999;
         }
+        .player-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+        .player-art { width: 36px; height: 36px; background-color: #3a3a3c; border-radius: 4px; }
+        .player-info { display: flex; flex-direction: column; min-width: 0; }
+        .player-title { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .player-session-info { font-size: 10px; color: var(--spotify-green); font-weight: 600; display: flex; align-items: center; gap: 4px; }
+        .player-right { display: flex; align-items: center; gap: 16px; }
+        .progress-container { position: absolute; bottom: 0; left: 12px; width: calc(100% - 24px); height: 2px; background-color: #3a3a3c; }
+        .progress-bar { width: 45%; height: 100%; background-color: var(--text-main); }
+        .progress-bar.synced { background-color: var(--spotify-green); }
 
-        .player-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex: 1;
-            min-width: 0;
-        }
-
-        .player-art {
-            width: 36px;
-            height: 36px;
-            background-color: #3a3a3c;
-            border-radius: 4px;
-        }
-
-        .player-info {
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-        }
-
-        .player-title {
-            font-size: 12px;
-            font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .player-session-info {
-            font-size: 10px;
-            color: var(--spotify-green);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .player-right {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .progress-container {
-            position: absolute;
-            bottom: 0;
-            left: 12px;
-            width: calc(100% - 24px);
-            height: 2px;
-            background-color: #3a3a3c;
-        }
-
-        .progress-bar {
-            width: 35%;
-            height: 100%;
-            background-color: var(--text-main);
-        }
-
-        .progress-bar.synced {
-            background-color: var(--spotify-green);
-        }
-
-        /* --- BARRA DE NAVEGACIÓN INFERIOR (RESTAURADA) --- */
+        /* --- NAVBAR INFERIOR RESTAURADA --- */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -404,37 +285,34 @@
             align-items: center;
             z-index: 1000;
         }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: var(--text-muted);
-            font-size: 10px;
-            text-decoration: none;
-            gap: 4px;
-            cursor: pointer;
-        }
-
-        .nav-item.active {
-            color: var(--text-main);
-        }
-
-        .nav-item i {
-            font-size: 20px;
-        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 10px; text-decoration: none; gap: 4px; }
+        .nav-item.active { color: var(--text-main); }
+        .nav-item i { font-size: 20px; }
     </style>
 </head>
 <body>
 
-    <!-- MODAL DE INVITACIÓN ENTRANTE -->
+    <!-- SCREEN DE ACCESO EXIGIDO -->
+    <div id="auth-screen">
+        <div class="auth-container">
+            <div class="auth-logo"><i class="fa-brands fa-spotify"></i></div>
+            <h2 style="margin: 0 0 20px 0;">Iniciar Sesión</h2>
+            <input type="password" id="password-input" class="auth-input" placeholder="Introduce tu contraseña">
+            <button class="auth-btn" onclick="validatePassword()">Ingresar</button>
+            
+            <div class="gesture-title">O dibuja tu patrón de desbloqueo</div>
+            <canvas id="gesture-canvas" width="220" height="220"></canvas>
+        </div>
+    </div>
+
+    <!-- NOTIFICACIÓN DE INVITACIÓN -->
     <div class="invite-modal" id="inviteModal">
         <div class="invite-header">
             <i class="fa-solid fa-circle-nodes"></i>
-            <span>Sesión Compartida</span>
+            <span>Invitación Recibida</span>
         </div>
         <div class="invite-body" id="modalText">
-            Luke te está invitando a escuchar en tiempo real juntos. ¿Aceptar el control total?
+            Luke te ha enviado una invitación. ¿Quieres controlar la música en conjunto?
         </div>
         <div class="invite-actions">
             <button class="btn-modal decline" onclick="respondInvite(false)">Rechazar</button>
@@ -442,172 +320,165 @@
         </div>
     </div>
 
-    <div class="container">
+    <!-- CONTENIDO GENERAL APP -->
+    <div id="app-content">
         <h1>Hola, Losh</h1>
 
-        <!-- SECCIÓN DE CONEXIÓN CON LUKE -->
+        <!-- BARRA ESTADO DE LUKE -->
         <div class="luke-status-bar">
             <div class="user-badge">
-                <div class="status-dot online" id="lukeDot"></div>
+                <div class="status-dot" id="lukeDot"></div>
                 <span style="font-size: 14px; font-weight: 600;">Luke</span>
-                <span id="lukeStatusText" style="font-size: 11px; color: var(--text-muted);">(Online)</span>
+                <span id="lukeStatusText" style="font-size: 11px; color: var(--text-muted);">(Offline)</span>
             </div>
-            <button class="btn-invite" id="inviteBtn" onclick="sendActionInvite()">Invitar a escuchar</button>
+            <button class="btn-invite" id="inviteBtn" style="display:none;" onclick="triggerInviteMock()">Enviar Invitación</button>
         </div>
 
-        <!-- ESCUCHADO RECIENTEMENTE (CORREGIDO EN TARJETAS CON RECUADROS) -->
+        <!-- ESCUCHADO RECIENTEMENTE -->
         <h2>Escuchado recientemente</h2>
         <div class="horizontal-scroll">
-            <div class="recent-card">
-                <div class="recent-thumb"><i class="fa-solid fa-music"></i></div>
-                <p>Is This Love</p>
-            </div>
-            <div class="recent-card">
-                <div class="recent-thumb"><i class="fa-solid fa-music"></i></div>
-                <p>Company</p>
-            </div>
-            <div class="recent-card">
-                <div class="recent-thumb"><i class="fa-solid fa-music"></i></div>
-                <p>Separate Lives</p>
-            </div>
-            <div class="recent-card">
-                <div class="recent-thumb"><i class="fa-solid fa-music"></i></div>
-                <p>Wonderful World</p>
-            </div>
-            <div class="recent-card">
-                <div class="recent-thumb"><i class="fa-solid fa-music"></i></div>
-                <p>Baile Inolvidable</p>
-            </div>
+            <div class="recent-card"><div class="recent-thumb"><i class="fa-solid fa-music"></i></div><p>Is This Love</p></div>
+            <div class="recent-card"><div class="recent-thumb"><i class="fa-solid fa-music"></i></div><p>Company</p></div>
+            <div class="recent-card"><div class="recent-thumb"><i class="fa-solid fa-music"></i></div><p>Separate Lives</p></div>
+            <div class="recent-card"><div class="recent-thumb"><i class="fa-solid fa-music"></i></div><p>Wonderful World</p></div>
         </div>
 
-        <!-- LISTAS PREDILECTAS (NUEVO SLIDER ESTÉTICO) -->
+        <!-- LISTAS PREDILECTAS -->
         <h2>Listas predilectas</h2>
         <div class="playlists-slider">
-            <div class="playlist-item all-tracks">
-                <span class="playlist-title">ALL</span>
-                <span class="playlist-subtitle">Todas las canciones</span>
-            </div>
-            <div class="playlist-item" style="background: linear-gradient(135deg, #8a2387, #e94057);">
-                <span class="playlist-title">Chill Out</span>
-                <span class="playlist-subtitle">120 temas</span>
-            </div>
-            <div class="playlist-item" style="background: linear-gradient(135deg, #11998e, #38ef7d);">
-                <span class="playlist-title">Bossa Nova</span>
-                <span class="playlist-subtitle">Exclusivos</span>
-            </div>
+            <div class="playlist-item all-tracks"><span class="playlist-title">ALL</span><span class="playlist-subtitle">Todas las canciones</span></div>
+            <div class="playlist-item" style="background: linear-gradient(135deg, #8a2387, #e94057);"><span class="playlist-title">Chill Out</span><span class="playlist-subtitle">120 temas</span></div>
+            <div class="playlist-item" style="background: linear-gradient(135deg, #11998e, #38ef7d);"><span class="playlist-title">Bossa Nova</span><span class="playlist-subtitle">Premium</span></div>
         </div>
 
-        <!-- RECOMENDACIONES PARA TI -->
+        <!-- RECOMENDACIONES -->
         <h2>Recomendaciones para ti</h2>
         <div class="song-list">
             <div class="song-item">
                 <div class="song-info-block">
-                    <div class="song-cover"><i class="fa-solid fa-record-vinyl"></i></div>
-                    <div class="song-details">
-                        <span class="song-title">Always on My Mind (Bossa Nova)</span>
-                        <span class="song-artist">Sarah Menescal</span>
-                    </div>
+                    <div class="song-cover"><i class="fa-solid fa-compact-disc"></i></div>
+                    <div class="song-details"><span class="song-title">Always on My Mind</span><span class="song-artist">Sarah Menescal</span></div>
                 </div>
-                <div class="song-actions">
-                    <i class="fa-solid fa-heart heart-active"></i>
-                    <i class="fa-solid fa-ellipsis-vertical"></i>
-                </div>
+                <div class="song-actions"><i class="fa-solid fa-heart heart-active"></i><i class="fa-solid fa-ellipsis-vertical"></i></div>
             </div>
-
             <div class="song-item">
                 <div class="song-info-block">
-                    <div class="song-cover"><i class="fa-solid fa-record-vinyl"></i></div>
-                    <div class="song-details">
-                        <span class="song-title">Bob Marley - Is This Love</span>
-                        <span class="song-artist">Groove Da Praia</span>
-                    </div>
+                    <div class="song-cover"><i class="fa-solid fa-compact-disc"></i></div>
+                    <div class="song-details"><span class="song-title">Is This Love</span><span class="song-artist">Groove Da Praia</span></div>
                 </div>
-                <div class="song-actions">
-                    <i class="fa-regular fa-heart"></i>
-                    <i class="fa-solid fa-ellipsis-vertical"></i>
-                </div>
-            </div>
-
-            <div class="song-item">
-                <div class="song-info-block">
-                    <div class="song-cover"><i class="fa-solid fa-record-vinyl"></i></div>
-                    <div class="song-details">
-                        <span class="song-title">Company</span>
-                        <span class="song-artist">Justin Bieber x Sarah</span>
-                    </div>
-                </div>
-                <div class="song-actions">
-                    <i class="fa-regular fa-heart"></i>
-                    <i class="fa-solid fa-ellipsis-vertical"></i>
-                </div>
+                <div class="song-actions"><i class="fa-regular fa-heart"></i><i class="fa-solid fa-ellipsis-vertical"></i></div>
             </div>
         </div>
     </div>
 
-    <!-- REPRODUCIENDO AHORA (MINI PLAYER RE-DISEÑADO) -->
-    <div class="now-playing-bar">
+    <!-- REPRODUCIENDO AHORA -->
+    <div class="now-playing-bar" id="playerBar" style="display:none;">
         <div class="player-left">
             <div class="player-art"></div>
             <div class="player-info">
-                <span class="player-title" id="trackTitle">Company - Justin Bieber x Sarah...</span>
-                <span class="player-session-info" id="sessionLabel">
-                    <i class="fa-solid fa-user"></i> Solo tú
-                </span>
+                <span class="player-title">Company - Justin Bieber x Sarah...</span>
+                <span class="player-session-info" id="sessionLabel"><i class="fa-solid fa-user"></i> Solo tú</span>
             </div>
         </div>
         <div class="player-right">
-            <i class="fa-solid fa-backward-step" style="color: var(--text-muted);"></i>
+            <i class="fa-solid fa-backward-step"></i>
             <i class="fa-solid fa-play" style="font-size: 18px;"></i>
-            <i class="fa-solid fa-forward-step" style="color: var(--text-muted);"></i>
+            <i class="fa-solid fa-forward-step"></i>
         </div>
-        <div class="progress-container">
-            <div class="progress-bar" id="playerProgress"></div>
-        </div>
+        <div class="progress-container"><div class="progress-bar" id="playerProgress"></div></div>
     </div>
 
-    <!-- BARRA DE NAVEGACIÓN INFERIOR RESTAURADA -->
-    <nav class="bottom-nav">
-        <a href="#" class="nav-item active">
-            <i class="fa-solid fa-house"></i>
-            <span>Inicio</span>
-        </a>
-        <a href="#" class="nav-item">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <span>Buscar</span>
-        </a>
-        <a href="#" class="nav-item">
-            <i class="fa-solid fa-lines-leaning"></i>
-            <span>Biblioteca</span>
-        </a>
-        <a href="#" class="nav-item">
-            <i class="fa-solid fa-music"></i>
-            <span>Playlists</span>
-        </a>
+    <!-- BOTTOM NAVIGATION -->
+    <nav class="bottom-nav" id="navigationBar" style="display:none;">
+        <div class="nav-item active"><i class="fa-solid fa-house"></i><span>Inicio</span></div>
+        <div class="nav-item"><i class="fa-solid fa-magnifying-glass"></i><span>Buscar</span></div>
+        <div class="nav-item"><i class="fa-solid fa-lines-leaning"></i><span>Biblioteca</span></div>
+        <div class="nav-item"><i class="fa-solid fa-music"></i><span>Playlists</span></div>
     </nav>
 
     <script>
-        // --- ESTADOS DE LA APLICACIÓN ---
-        let isLukeOnline = true; // Control de sesión activa
-        let isJoinedSession = false; // Estado del "Alltogether" o sesión compartida
+        // --- 1. LÓGICA DE AUTENTICACIÓN (CONTRASENA Y GESTO) ---
+        const canvas = document.getElementById('gesture-canvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let points = [];
 
-        // Simular cambios de conexión reales (Cuando cierra/abre app o ventana)
-        window.addEventListener('load', () => {
-            // Al abrir, Luke se detecta online automáticamente en este entorno controlado
-            setLukeStatus(true);
+        // Dibujar retícula del patrón de desbloqueo (Gesto)
+        function drawGrid() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#444';
+            for (let i = 1; i <= 3; i++) {
+                for (let j = 1; j <= 3; j++) {
+                    ctx.beginPath();
+                    ctx.arc(i * 55, j * 55, 8, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+        }
+        drawGrid();
+
+        // Eventos para trazar el gesto
+        canvas.addEventListener('mousedown', () => isDrawing = true);
+        canvas.addEventListener('touchstart', () => isDrawing = true);
+        
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            points.push({x, y});
+            
+            ctx.strokeStyle = '#1DB954';
+            ctx.lineWidth = 4;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            
+            if (points.length > 1) {
+                ctx.beginPath();
+                ctx.moveTo(points[points.length-2].x, points[points.length-2].y);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            }
         });
 
-        window.addEventListener('blur', () => {
-            // Opcional: Si el usuario cambia de pestaña puedes simular desconexión temporal
-            // setLukeStatus(false); 
+        window.addEventListener('mouseup', () => {
+            if(isDrawing) {
+                isDrawing = false;
+                // Al terminar de dibujar cualquier patrón/gesto concede el acceso progresivo
+                accessGranted();
+            }
         });
 
-        function setLukeStatus(online) {
-            isLukeOnline = online;
+        function validatePassword() {
+            const pass = document.getElementById('password-input').value;
+            if(pass.trim() !== "") {
+                accessGranted();
+            } else {
+                alert("Por favor ingresa una contraseña válida.");
+            }
+        }
+
+        // --- 2. ACTIVACIÓN E INICIALIZACIÓN COMPLETA DE LA APP ---
+        function accessGranted() {
+            document.getElementById('auth-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('app-content').style.display = 'block';
+                document.getElementById('playerBar').style.display = 'flex';
+                document.getElementById('navigationBar').style.display = 'flex';
+                
+                // Al iniciar la sesión, el sistema toma en cuenta a Luke como ONLINE
+                goOnlineLuke(true);
+            }, 500);
+        }
+
+        // --- 3. LÓGICA DE CONTROL COMPARTIDO DE LUKE ---
+        function goOnlineLuke(online) {
             const dot = document.getElementById('lukeDot');
             const txt = document.getElementById('lukeStatusText');
             const btn = document.getElementById('inviteBtn');
-
-            if (online) {
+            
+            if(online) {
                 dot.classList.add('online');
                 txt.innerText = "(Online)";
                 btn.style.display = "block";
@@ -615,40 +486,32 @@
                 dot.classList.remove('online');
                 txt.innerText = "(Offline)";
                 btn.style.display = "none";
-                endSharedSession();
+                disconnectSession();
             }
         }
 
-        // --- SISTEMA INTERACTIVO DE INVITACIONES ---
-        function sendActionInvite() {
-            // El usuario Losh envía invitación a Luke, simulamos que Luke la acepta al instante
+        // Simular que cuando se cierre la ventana pase a Offline
+        window.addEventListener('beforeunload', () => {
+            goOnlineLuke(false);
+        });
+
+        function triggerInviteMock() {
+            // Se despliega la ventana estética de invitación tipo modal
             const modal = document.getElementById('inviteModal');
-            const modalText = document.getElementById('modalText');
-            
-            // Simulemos el caso inverso: "Luke te ha enviado una invitación"
-            modalText.innerText = "Luke ha aceptado tu invitación. Conectando reproductores en tiempo real...";
             modal.classList.add('show');
-            
-            // Autoaceptar para efectos prácticos del control dinámico
-            setTimeout(() => {
-                respondInvite(true);
-            }, 2000);
         }
 
         function respondInvite(accepted) {
             const modal = document.getElementById('inviteModal');
             modal.classList.remove('show');
-
-            if (accepted) {
-                isJoinedSession = true;
+            
+            if(accepted) {
                 document.getElementById('sessionLabel').innerHTML = `<i class="fa-solid fa-circle-nodes"></i> En conjunto con Luke`;
                 document.getElementById('playerProgress').classList.add('synced');
-                alert("¡Sesión sincronizada! Todo lo que escuches se controlará mutuamente.");
             }
         }
 
-        function endSharedSession() {
-            isJoinedSession = false;
+        function disconnectSession() {
             document.getElementById('sessionLabel').innerHTML = `<i class="fa-solid fa-user"></i> Solo tú`;
             document.getElementById('playerProgress').classList.remove('synced');
         }

@@ -32,7 +32,7 @@
             display: flex;
             flex-direction: column;
             overflow-x: hidden;
-            padding-bottom: 140px;
+            padding-bottom: 150px;
         }
 
         .fade-in-effect {
@@ -126,21 +126,20 @@
         }
         .tarjeta-reciente span { font-size: 0.85em; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 5px; }
 
-        /* FILAS DE CANCIONES */
+        /* FILAS DE CANCIONES (¡REPRODUCCIÓN EN TODA EL ÁREA!) */
         .track-row { display: flex; align-items: center; gap: 15px; padding: 10px 0; cursor: pointer; background: transparent; position: relative; width: 100%; }
         .track-cover { width: 48px; height: 48px; border-radius: 4px; background: #282828; background-size: cover; background-position: center; flex-shrink: 0; object-fit: cover; }
-        .track-meta { flex: 1; min-width: 0; }
+        .track-meta { flex: 1; min-width: 0; pointer-events: none; } /* Hace que tocar el texto actúe en la fila contenedora */
         .track-title { font-size: 0.95em; font-weight: 500; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .track-artist { font-size: 0.85em; color: var(--texto-secundario); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: inline-block; }
-        .track-artist:hover { text-decoration: underline; color: #fff; }
-        .track-actions { display: flex; align-items: center; gap: 15px; background: transparent; position: relative; z-index: 10; }
+        .track-artist { font-size: 0.85em; color: var(--texto-secundario); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: inline-block; margin-top: 2px; }
         
+        .track-actions { display: flex; align-items: center; gap: 15px; background: transparent; position: relative; z-index: 10; }
         .btn-heart { background: none; border: none; color: var(--texto-secundario); font-size: 1.2em; cursor: pointer; transition: transform 0.15s; }
         .btn-heart.active { color: var(--apple-accent); transform: scale(1.15); }
-        .btn-more { background: none; border: none; color: var(--texto-secundario); font-size: 1.2em; cursor: pointer; }
+        .btn-more { background: none; border: none; color: var(--texto-secundario); font-size: 1.2em; padding: 5px; cursor: pointer; }
 
         /* CONTENEDOR SWIPE TÁCTIL */
-        .swipe-container { position: relative; overflow: hidden; width: 100%; border-radius: 8px; margin-bottom: 2px; background-color: #000; }
+        .swipe-container { position: relative; overflow: hidden; width: 100%; border-radius: 8px; margin-bottom: 2px; background-color: #000; flex-shrink: 0; }
         .swipe-background {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: space-between;
@@ -153,7 +152,7 @@
         .search-history-header { display: flex; justify-content: space-between; align-items: center; margin: 15px 0 10px 0; }
         .btn-clear-history { background: none; border: none; color: var(--apple-accent); font-size: 0.85em; font-weight: 600; cursor: pointer; }
 
-        /* SECCIÓN CREAR PLAYLIST DISEÑO MEJORADO Y ESTÉTICO */
+        /* SECCIÓN CREAR PLAYLIST */
         .create-premium-box {
             background: linear-gradient(135deg, #1e1e1e 0%, #151515 100%);
             border-radius: 20px; padding: 30px 24px; border: 1px solid #282828;
@@ -173,17 +172,26 @@
         .btn-premium-action.save { background: var(--apple-accent); color: #000; }
         .btn-premium-action:active { transform: scale(0.97); }
 
-        /* MINI REPRODUCTOR */
+        /* MINI REPRODUCTOR ESTILO SPOTIFY CON BARRA VERDE INTERNA */
         .mini-player {
             position: fixed; bottom: 65px; left: 5px; right: 5px;
-            background: #1f1f1f; border-radius: 8px; padding: 8px 12px;
+            background: #1f1f1f; border-radius: 8px; padding: 8px 12px 11px 12px;
             display: flex; align-items: center; gap: 12px; z-index: 900;
+            overflow: hidden;
         }
         .mini-info { flex: 1; min-width: 0; cursor: pointer; }
         .mini-title { font-size: 0.85em; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .mini-artist { font-size: 0.75em; color: var(--texto-secundario); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .mini-controls { display: flex; align-items: center; gap: 15px; }
         .mini-btn { background: none; border: none; color: #fff; font-size: 1.4em; cursor: pointer; }
+        
+        /* Barra mini progreso Spotify */
+        .mini-progress-container {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background: rgba(255,255,255,0.1);
+        }
+        .mini-progress-bar {
+            height: 100%; width: 0%; background: var(--apple-accent); transition: width 0.1s linear;
+        }
 
         /* NAV BAR INFERIOR */
         .bottom-nav {
@@ -195,21 +203,21 @@
         .nav-item.active { color: #fff; }
         .nav-item svg { width: 22px; height: 22px; fill: currentColor; }
 
-        /* COLA DESPLEGABLE */
+        /* SOLUCIÓN AL COLA DESPLEGABLE CON SCROLL TOTAL INTEGRADO */
         .playlist-view-container { 
-            display: none; max-height: 0; opacity: 0; overflow: hidden;
-            margin-top: 10px; padding-left: 5px; border-left: 2px solid #1ed760;
-            transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+            display: none; opacity: 0; overflow-y: auto; overflow-x: hidden;
+            max-height: 450px; margin-top: 10px; padding-left: 5px; 
+            border-left: 2px solid var(--apple-accent);
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
         }
-        .playlist-view-container.visible { display: block; max-height: 2000px; opacity: 1; }
+        .playlist-view-container.visible { display: flex; flex-direction: column; opacity: 1; }
 
-        /* REPRODUCTOR COMPLETO GESTOS SWIPE DOWN COMPACTO */
+        /* REPRODUCTOR COMPLETO */
         .full-player-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(to bottom, #1c281e, #121212);
             z-index: 2000; display: flex; flex-direction: column; padding: 20px 24px 40px 24px;
-            transform: translateY(100%);
-            touch-action: none; /* Bloquea scrolling nativo para priorizar nuestro motor de gestos */
+            transform: translateY(100%); touch-action: none;
         }
         .full-player-overlay.open { transform: translateY(0); }
         .full-player-overlay.dragging { transition: none !important; }
@@ -243,11 +251,11 @@
         /* MODALES */
         .modal-playlist { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; display: none; justify-content: center; align-items: center; }
         .modal-content { background: var(--bg-tarjeta); width: 85%; max-width: 320px; padding: 24px; border-radius: 16px; }
-        .modal-list { max-height: 200px; overflow-y: auto; margin-bottom: 15px; }
-        .modal-item { padding: 12px; border-bottom: 1px solid #222; cursor: pointer; }
+        .modal-list { max-height: 250px; overflow-y: auto; margin: 15px 0; }
+        .modal-item { padding: 14px; border-bottom: 1px solid #222; cursor: pointer; font-weight: 600; font-size: 0.95em; }
         .gesture-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(18,18,18,0.98); z-index: 10000; display: none; flex-direction: column; justify-content: center; align-items: center; }
 
-        /* MODAL FLOTANTE CONTEXTUAL DE OPCIONES PLAYLIST (LONG PRESS) */
+        /* CONTEXT MENU */
         .context-menu-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.7); z-index: 4000; display: none;
@@ -270,6 +278,7 @@
 </head>
 <body>
 
+    <!-- INTERFAZ LOGIN -->
     <div id="loginOverlay" class="login-overlay">
         <div class="login-box">
             <h2>Música Privada</h2>
@@ -292,8 +301,10 @@
         <button onclick="document.getElementById('gestureOverlay').style.display='none'" style="margin-bottom:40px; padding:10px 25px; background:#222; color:#fff; border:none; border-radius:20px; font-weight:600;">Volver al teclado</button>
     </div>
 
+    <!-- NÚCLEO APP -->
     <div id="mainAppWrapper">
         
+        <!-- SECCIÓN 1: INICIO -->
         <section id="sec-inicio" class="app-section active">
             <h1 id="saludoUsuario">Hola</h1>
             <h2>Escuchado recientemente</h2>
@@ -310,6 +321,7 @@
             <div id="listaRecomendados"></div>
         </section>
 
+        <!-- SECCIÓN 2: BUSCADOR -->
         <section id="sec-buscar" class="app-section">
             <h1>Buscar</h1>
             <input type="text" id="searchInput" class="search-box" placeholder="Artistas, canciones...">
@@ -335,6 +347,7 @@
             <div id="resultadosBusqueda"></div>
         </section>
 
+        <!-- SECCIÓN 3: BIBLIOTECA -->
         <section id="sec-biblioteca" class="app-section">
             <h1>Tu biblioteca</h1>
             
@@ -348,6 +361,7 @@
             <div id="lib-content-artists" style="display:none;"></div>
         </section>
 
+        <!-- SECCIÓN DE ARTISTA DETALLADA -->
         <section id="sec-artista-detalle" class="app-section">
             <button class="btn-back-nav" onclick="volverAtrasArtista()">← Volver</button>
             <div class="artist-header-view">
@@ -361,6 +375,7 @@
             <div id="artDetalleListaCanciones"></div>
         </section>
 
+        <!-- SECCIÓN 4: CREAR PLAYLIST -->
         <section id="sec-crear" class="app-section">
             <h1>Crear Playlist</h1>
             <div class="create-premium-box">
@@ -376,17 +391,22 @@
 
     </div>
 
+    <!-- MINI PLAYER ESTILO SPOTIFY CON BARRA VERDE PROGRESIVA -->
     <div class="mini-player" id="miniPlayer">
         <div class="track-cover" id="miniCover" onclick="abrirReproductorCompleto()"></div>
-        <div class="mini-info" onclick="abrirReproductorCompleto()">
+        <div class="mini-info" id="miniInfoContainer">
             <div class="mini-title" id="miniTitle">Ninguna canción</div>
             <div class="mini-artist" id="miniArtist">-</div>
         </div>
         <div class="mini-controls">
             <button class="mini-btn" id="miniPlayBtn">▶</button>
         </div>
+        <div class="mini-progress-container">
+            <div class="mini-progress-bar" id="miniProgressBar"></div>
+        </div>
     </div>
 
+    <!-- REPRODUCTOR COMPLETO PREMIUM -->
     <div id="fullPlayerOverlay" class="full-player-overlay">
         <div class="swipe-handle-bar"></div>
         <div class="full-header">
@@ -423,6 +443,7 @@
         </div>
     </div>
 
+    <!-- BARRA NAVEGACIÓN PRINCIPAL -->
     <nav class="bottom-nav">
         <div class="nav-item active" onclick="cambiarSeccion('sec-inicio', this)">
             <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Inicio
@@ -438,28 +459,33 @@
         </div>
     </nav>
 
+    <!-- MODAL RE-DISEÑADO ACCIONES DE CANCIÓN CON SELECCIÓN DE PLAYLIST E "IR A ARTISTA" -->
     <div id="modalPlaylist" class="modal-playlist">
         <div class="modal-content">
-            <h3>Agregar a playlist</h3>
+            <h3 id="modalTrackTitulo" style="font-size:1.1em; text-align:center; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Opciones</h3>
+            <p id="modalTrackArtista" style="font-size:0.85em; color:var(--texto-secundario); text-align:center; margin-bottom:15px;"></p>
+            
+            <!-- Opción directa Premium para viajar al perfil de artista -->
+            <button id="btnModalIrAlArtista" style="width:100%; padding:12px; background:rgba(255,255,255,0.07); color:var(--apple-accent); border:1px solid #333; border-radius:8px; font-weight:700; margin-bottom:15px; cursor:pointer;">👤 Ir al perfil del Artista</button>
+            
+            <div style="font-size:0.85em; color:var(--texto-secundario); font-weight:600; margin-bottom:5px;">Agregar a una playlist:</div>
             <div class="modal-list" id="modalPlaylistList"></div>
-            <button onclick="document.getElementById('modalPlaylist').style.display='none'" style="width:100%; padding:10px; background:#333; color:#fff; border:none; border-radius:8px; font-weight:600;">Cancelar</button>
+            <button onclick="document.getElementById('modalPlaylist').style.display='none'" style="width:100%; padding:12px; background:#333; color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;">Cancelar</button>
         </div>
     </div>
 
+    <!-- MENÚ FLOTANTE CONTEXTUAL DE PLAYLISTS (LONG PRESS) -->
     <div id="contextMenuOverlay" class="context-menu-overlay" onclick="cerrarMenuContextualPlaylist()">
         <div class="context-menu-box" onclick="event.stopPropagation()">
             <div class="context-menu-title" id="contextMenuPlaylistTitulo">Opciones de Playlist</div>
-            
             <div class="context-menu-option" id="btnContextFijar">📌 Fijar / Desfijar de arriba</div>
             <div class="context-menu-option" id="btnContextPortada">🖼️ Cambiar foto de portada</div>
             <div class="context-menu-option danger" id="btnContextBorrar">🗑️ Eliminar Playlist</div>
-            
             <button onclick="cerrarMenuContextualPlaylist()" style="width:100%; padding:14px; background:#2c2c2e; color:#fff; border:none; border-radius:12px; margin-top:15px; font-weight:700;">Cancelar</button>
         </div>
     </div>
 
     <input type="file" id="playlistImageInput" accept="image/*" style="display:none;">
-
     <audio id="audioPlayer"></audio>
 
     <script>
@@ -468,7 +494,6 @@
 
         let usuarioActual = ""; 
         let cancionesGlobales = [];
-        // datosUsuario ampliado con soporte de Pinned (Fijados) y Portadas (Covers)
         let datosUsuario = { favoritos: [], recientes: [], buscarHistorial: [], playlists: {}, pinnedPlaylists: [], playlistCovers: {} };
 
         let colaActual = [];
@@ -521,8 +546,6 @@
                 if (!datosUsuario.favoritos) datosUsuario.favoritos = [];
                 if (!datosUsuario.pinnedPlaylists) datosUsuario.pinnedPlaylists = [];
                 if (!datosUsuario.playlistCovers) datosUsuario.playlistCovers = {};
-            } else {
-                datosUsuario = { favoritos: [], recientes: [], buscarHistorial: [], playlists: {}, pinnedPlaylists: [], playlistCovers: {} };
             }
         }
         function guardarDatosPerfil() { localStorage.setItem("perfil_v4_" + usuarioActual, JSON.stringify(datosUsuario)); }
@@ -550,14 +573,21 @@
             if (idSec === 'sec-biblioteca') renderizarBiblioteca();
         }
 
+        // CREACIÓN DE FILA: AHORA TODA EL ÁREA LANZA LA REPRODUCCIÓN INDEPENDIENTEMENTE DE DÓNDE SE TOQUE
         function crearFilaCancion(track, contenedorLista, contextColaDinamica = false) {
             const esFav = datosUsuario.favoritos.includes(track.archivo_url);
             const fila = document.createElement('div');
             fila.className = 'track-row';
+            
+            // El click en cualquier parte de la fila reproduce la canción
+            fila.onclick = () => {
+                reproducirTrackDirecto(track.archivo_url, contextColaDinamica);
+            };
+
             fila.innerHTML = `
-                <div class="track-cover" style="background-image: url('${track.portada_url || ''}')" onclick="reproducirTrackDirecto('${track.archivo_url}', ${contextColaDinamica})"></div>
+                <div class="track-cover" style="background-image: url('${track.portada_url || ''}')"></div>
                 <div class="track-meta">
-                    <div class="track-title" onclick="reproducirTrackDirecto('${track.archivo_url}', ${contextColaDinamica})">${track.titulo || 'Sin título'}</div>
+                    <div class="track-title">${track.titulo || 'Sin título'}</div>
                     <div class="track-artist">${track.artista || 'Desconocido'}</div>
                 </div>
                 <div class="track-actions">
@@ -566,7 +596,7 @@
                 </div>
             `;
             
-            fila.querySelector('.track-artist').onclick = (e) => { e.stopPropagation(); verPerfilArtista(track.artista, idSeccionActual()); };
+            // Detenemos la propagación en los botones laterales para que no reproduzcan al tocarlos
             fila.querySelector('.btn-heart').onclick = (e) => { e.stopPropagation(); toggleFavorito(track.archivo_url, e.target); };
             fila.querySelector('.btn-more').onclick = (e) => { e.stopPropagation(); abrirModalPlaylist(track.archivo_url); };
             contenedorLista.appendChild(fila);
@@ -585,31 +615,36 @@
             swipeContent.className = 'swipe-content';
             
             const esFav = datosUsuario.favoritos.includes(track.archivo_url);
-            swipeContent.innerHTML = `
-                <div class="track-row">
-                    <div class="track-cover" style="background-image: url('${track.portada_url}')" onclick="reproducirDesdeContextoEspecial('${track.archivo_url}', '${idPlaylistOrigen}')"></div>
-                    <div class="track-meta">
-                        <div class="track-title" onclick="reproducirDesdeContextoEspecial('${track.archivo_url}', '${idPlaylistOrigen}')">${track.titulo}</div>
-                        <div class="track-artist">${track.artista}</div>
-                    </div>
-                    <div class="track-actions">
-                        <button class="btn-heart ${esFav?'active':''}">♥</button>
-                        <button class="btn-more">⋮</button>
-                    </div>
+            
+            const filaInterna = document.createElement('div');
+            filaInterna.className = 'track-row';
+            filaInterna.onclick = () => {
+                reproducirDesdeContextoEspecial(track.archivo_url, idPlaylistOrigen);
+            };
+            
+            filaInterna.innerHTML = `
+                <div class="track-cover" style="background-image: url('${track.portada_url}')"></div>
+                <div class="track-meta">
+                    <div class="track-title">${track.titulo}</div>
+                    <div class="track-artist">${track.artista}</div>
+                </div>
+                <div class="track-actions">
+                    <button class="btn-heart ${esFav?'active':''}">♥</button>
+                    <button class="btn-more">⋮</button>
                 </div>
             `;
 
-            swipeContent.querySelector('.track-artist').onclick = (e) => { e.stopPropagation(); verPerfilArtista(track.artista, idSeccionActual()); };
-            swipeContent.querySelector('.btn-heart').onclick = (e) => { e.stopPropagation(); toggleFavorito(track.archivo_url, e.target); };
-            swipeContent.querySelector('.btn-more').onclick = (e) => { e.stopPropagation(); abrirModalPlaylist(track.archivo_url); };
+            filaInterna.querySelector('.btn-heart').onclick = (e) => { e.stopPropagation(); toggleFavorito(track.archivo_url, e.target); };
+            filaInterna.querySelector('.btn-more').onclick = (e) => { e.stopPropagation(); abrirModalPlaylist(track.archivo_url); };
 
+            swipeContent.appendChild(filaInterna);
             swipeContainer.appendChild(swipeBg);
             swipeContainer.appendChild(swipeContent);
             contenedorLista.appendChild(swipeContainer);
 
             let startX = 0; let currentX = 0; let isSwiping = false;
 
-            swipeContent.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; isSwiping = true; swipeContent.style.transition = 'none'; });
+            swipeContent.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; isSwiping = true; swipeContent.style.transition = 'none'; }, {passive:true});
             swipeContent.addEventListener('touchmove', (e) => {
                 if (!isSwiping) return;
                 currentX = e.touches[0].clientX;
@@ -624,7 +659,7 @@
                     let pct = Math.min(diffX / 80, 1);
                     swipeBg.style.backgroundColor = `rgba(${34 + (30 - 34)*pct}, ${34 + (215 - 34)*pct}, ${34 + (96 - 34)*pct}, 1)`;
                 }
-            });
+            }, {passive:true});
 
             swipeContent.addEventListener('touchend', () => {
                 isSwiping = false; let diffX = currentX - startX;
@@ -745,13 +780,13 @@
                 txt.textContent = "Todas las canciones (Abrir Lista)";
             } else {
                 panel.innerHTML = "";
-                cancionesGlobales.forEach(t => crearFilaCancion(t, panel, false));
+                cancionesGlobales.forEach(t => crearFilaConSwipe(t, panel, "general_all"));
                 panel.classList.add("visible");
                 txt.textContent = "Todas las canciones (Ocultar Lista)";
             }
         }
 
-        // BUSCADOR CON LÓGICA TOP RESULT ARTISTA PRIORITARIO
+        // BUSCADOR
         const searchInput = document.getElementById('searchInput');
         searchInput.addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase().trim();
@@ -771,7 +806,6 @@
             tit.style.display = "block"; 
             document.getElementById('historialContenedorPadre').style.display = "none";
 
-            // Verificar si hay algún artista coincidente de primero
             const artistaCoincidente = cancionesGlobales.find(c => c.artista?.toLowerCase().includes(query));
             if (artistaCoincidente) {
                 document.getElementById('topResultNombre').textContent = artistaCoincidente.artista;
@@ -784,11 +818,11 @@
                 topResultContenedor.style.display = "none";
             }
 
-            // Renderizar el resto de canciones coincidentes
             const filtrados = cancionesGlobales.filter(c => c.titulo?.toLowerCase().includes(query) || c.artista?.toLowerCase().includes(query));
             filtrados.forEach(t => {
                 const fila = document.createElement('div');
                 fila.className = 'track-row';
+                fila.onclick = () => { ejecutarHistorialBuscado(t); };
                 fila.innerHTML = `
                     <div class="track-cover" style="background-image: url('${t.portada_url}')"></div>
                     <div class="track-meta">
@@ -796,11 +830,6 @@
                         <div class="track-artist">${t.artista}</div>
                     </div>
                 `;
-                fila.querySelector('.track-title').onclick = () => { ejecutarHistorialBuscado(t); };
-                fila.querySelector('.track-artist').onclick = (ev) => {
-                    ev.stopPropagation();
-                    verPerfilArtista(t.artista, 'sec-buscar');
-                };
                 contenedor.appendChild(fila);
             });
         });
@@ -834,7 +863,7 @@
 
         document.getElementById('btnClearHistory').addEventListener('click', () => { datosUsuario.buscarHistorial = []; guardarDatosPerfil(); renderizarHistorialBusqueda(); });
 
-        // SISTEMA BIBLIOTECA CON LONG-PRESS ADAPTADO
+        // BIBLIOTECA
         let filtroBibliotecaActual = "all";
         function filtrarBiblioteca(tipo) {
             filtroBibliotecaActual = tipo;
@@ -871,7 +900,6 @@
         }
 
         function renderizarBloquePlaylistsBase(contenedor) {
-            // Favoritos (Esta no se borra ni se pinea por defecto, es del sistema)
             const blockFav = document.createElement('div');
             blockFav.style.marginBottom = "12px";
             blockFav.innerHTML = `
@@ -886,12 +914,11 @@
             `;
             contenedor.appendChild(blockFav);
 
-            // Ordenar playlists del usuario: Pinned (fijadas) primero
             let listaNombresPlaylists = Object.keys(datosUsuario.playlists);
             listaNombresPlaylists.sort((a, b) => {
                 let aPinned = datosUsuario.pinnedPlaylists.includes(a) ? 1 : 0;
                 let bPinned = datosUsuario.pinnedPlaylists.includes(b) ? 1 : 0;
-                return bPinned - aPinned; // Los 1 van primero
+                return bPinned - aPinned;
             });
 
             listaNombresPlaylists.forEach(nombre => {
@@ -921,7 +948,6 @@
                     <div id="view-playlist-${cleanId}" class="playlist-view-container"></div>
                 `;
 
-                // IMPLEMENTACIÓN DEL MOTOR LONG PRESS (1 SEGUNDO) CON FEEDBACK DE ANIMACIÓN
                 let pressTimer;
                 const elementoFila = blockCustom.querySelector('.track-row');
 
@@ -929,9 +955,9 @@
                     blockCustom.classList.add('pressing');
                     pressTimer = setTimeout(() => {
                         blockCustom.classList.remove('pressing');
-                        if (navigator.vibrate) navigator.vibrate(50); // Feedback háptico nativo celular
+                        if (navigator.vibrate) navigator.vibrate(50);
                         abrirMenuContextualPlaylist(nombre);
-                    }, 1000); // 1 segundo exacto de pulsación continuada
+                    }, 1000);
                 };
 
                 const endPress = () => {
@@ -939,13 +965,12 @@
                     clearTimeout(pressTimer);
                 };
 
-                elementoFila.addEventListener('touchstart', startPress, {pasive: true});
+                elementoFila.addEventListener('touchstart', startPress, {passive: true});
                 elementoFila.addEventListener('touchend', endPress);
                 elementoFila.addEventListener('mousedown', startPress);
                 elementoFila.addEventListener('mouseup', endPress);
                 elementoFila.addEventListener('mouseleave', endPress);
 
-                // Click normal expande o colapsa la playlist
                 elementoFila.onclick = (e) => {
                     toggleVerContenidoPlaylist(nombre);
                 };
@@ -993,14 +1018,11 @@
             panel.classList.add("visible");
         }
 
-        // CONTROL LOGÍSTICO DEL MODAL FLOTANTE CONTEXTUAL (LONG PRESS)
-        let playlistSeleccionadaContexto = "";
         function abrirMenuContextualPlaylist(nombrePlaylist) {
             playlistSeleccionadaContexto = nombrePlaylist;
             document.getElementById('contextMenuPlaylistTitulo').textContent = `Playlist: ${nombrePlaylist}`;
             document.getElementById('contextMenuOverlay').style.display = "flex";
 
-            // Botón Fijar / Desfijar dinámico
             const btnFijar = document.getElementById('btnContextFijar');
             if(datosUsuario.pinnedPlaylists.includes(nombrePlaylist)) {
                 btnFijar.textContent = "📌 Desfijar de la parte superior";
@@ -1016,7 +1038,7 @@
             };
 
             document.getElementById('btnContextBorrar').onclick = () => {
-                if(confirm(`¿Estás seguro de que quieres eliminar "${playlistSeleccionadaContexto}" por completo?`)) {
+                if(confirm(`¿Estás seguro de que quieres eliminar "${playlistSeleccionadaContexto}"?`)) {
                     delete datosUsuario.playlists[playlistSeleccionadaContexto];
                     datosUsuario.pinnedPlaylists = datosUsuario.pinnedPlaylists.filter(p => p !== playlistSeleccionadaContexto);
                     if(datosUsuario.playlistCovers[playlistSeleccionadaContexto]) delete datosUsuario.playlistCovers[playlistSeleccionadaContexto];
@@ -1029,68 +1051,45 @@
             };
         }
 
-        function cerrarMenuContextualPlaylist() {
-            document.getElementById('contextMenuOverlay').style.display = "none";
-        }
+        function cerrarMenuContextualPlaylist() { document.getElementById('contextMenuOverlay').style.display = "none"; }
 
-        // Manejador del Input de Carga de Imágenes de la Galería
         document.getElementById('playlistImageInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
             const reader = new FileReader();
             reader.onload = function(event) {
-                const base64Image = event.target.result;
-                datosUsuario.playlistCovers[playlistSeleccionadaContexto] = base64Image;
-                guardarDatosPerfil();
-                cerrarMenuContextualPlaylist();
-                renderizarBiblioteca();
+                datosUsuario.playlistCovers[playlistSeleccionadaContexto] = event.target.result;
+                guardarDatosPerfil(); cerrarMenuContextualPlaylist(); renderizarBiblioteca();
             };
             reader.readAsDataURL(file);
         });
 
-
-        // MOTOR AVANZADO DE GESTOS VERTICALES (SWIPE DOWN TO CLOSE) REPRODUCTOR COMPLETO
+        // GESTOS REPRODUCTOR COMPLETO
         const fullPlayer = document.getElementById('fullPlayerOverlay');
-        let startYGesture = 0;
-        let currentYGesture = 0;
-        let isDraggingPlayer = false;
+        let startYGesture = 0; let currentYGesture = 0; let isDraggingPlayer = false;
 
         fullPlayer.addEventListener('touchstart', (e) => {
-            // Permitir arrastre desde cualquier punto excepto inputs o barras de progreso
             if (e.target.closest('#fullSeekBar') || e.target.closest('.full-controls') || e.target.closest('.btn-back-player')) return;
-            startYGesture = e.touches[0].clientY;
-            isDraggingPlayer = true;
-            fullPlayer.classList.add('dragging');
+            startYGesture = e.touches[0].clientY; isDraggingPlayer = true; fullPlayer.classList.add('dragging');
         }, { passive: true });
 
         fullPlayer.addEventListener('touchmove', (e) => {
             if (!isDraggingPlayer) return;
             currentYGesture = e.touches[0].clientY;
             let diffY = currentYGesture - startYGesture;
-            
-            if (diffY > 0) { // Solo arrastre descendente
-                fullPlayer.style.transform = `translateY(${diffY}px)`;
-            }
+            if (diffY > 0) fullPlayer.style.transform = `translateY(${diffY}px)`;
         }, { passive: true });
 
         fullPlayer.addEventListener('touchend', () => {
             if (!isDraggingPlayer) return;
-            isDraggingPlayer = false;
-            fullPlayer.classList.remove('dragging');
+            isDraggingPlayer = false; fullPlayer.classList.remove('dragging');
             let totalDiffY = currentYGesture - startYGesture;
-
-            if (totalDiffY > 140) { // Umbral de superación para minimizar con éxito
-                cerrarReproductorCompleto();
-            } else {
-                fullPlayer.style.transition = 'transform 0.35s cubic-bezier(0.25, 1, 0.5, 1)';
-                fullPlayer.style.transform = 'translateY(0px)';
-                setTimeout(() => fullPlayer.style.transition = '', 350);
-            }
+            if (totalDiffY > 140) { cerrarReproductorCompleto(); } 
+            else { fullPlayer.style.transition = 'transform 0.35s cubic-bezier(0.25, 1, 0.5, 1)'; fullPlayer.style.transform = 'translateY(0px)'; }
             startYGesture = 0; currentYGesture = 0;
         });
 
-
-        // MOTOR AUDIO GENERAL
+        // REPRODUCTOR AUDIO CON BARRA VERDE DE PROGRESO INTEGRADA EN EL MINI-PLAYER
         function ejecutarAudio() {
             if (indexCola < 0 || indexCola >= colaActual.length) return;
             const track = colaActual[indexCola];
@@ -1118,6 +1117,7 @@
         }
 
         document.getElementById('miniPlayBtn').addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); });
+        document.getElementById('miniInfoContainer').addEventListener('click', abrirReproductorCompleto);
         document.getElementById('fullPlayBtn').addEventListener('click', togglePlay);
         document.getElementById('fullNextBtn').addEventListener('click', () => { if(colaActual.length) { indexCola = (indexCola + 1) % colaActual.length; ejecutarAudio(); } });
         document.getElementById('fullPrevBtn').addEventListener('click', () => { if(colaActual.length) { indexCola = (indexCola - 1 + colaActual.length) % colaActual.length; ejecutarAudio(); } });
@@ -1125,8 +1125,7 @@
 
         document.getElementById('fullHeartBtn').addEventListener('click', () => {
             if (indexCola < 0 || !colaActual[indexCola]) return;
-            const currentTrack = colaActual[indexCola];
-            toggleFavorito(currentTrack.archivo_url, document.getElementById('fullHeartBtn'));
+            toggleFavorito(colaActual[indexCola].archivo_url, document.getElementById('fullHeartBtn'));
             ejecutarAudio();
         });
         document.getElementById('fullAddPlaylistBtn').addEventListener('click', () => {
@@ -1134,31 +1133,53 @@
         });
 
         function formatTime(sec) { if(isNaN(sec)) return "0:00"; let m = Math.floor(sec / 60), s = Math.floor(sec % 60); return `${m}:${s < 10 ? '0' : ''}${s}`; }
+        
+        // Sincronización en tiempo real de ambas barras de progreso (Normal y Mini Spotify)
         audio.addEventListener('timeupdate', () => {
             if (!audio.duration) return;
-            document.getElementById('fullSeekProgress').style.width = ((audio.currentTime / audio.duration) * 100) + "%";
+            const porcentajeProgreso = (audio.currentTime / audio.duration) * 100;
+            
+            // Barra completa
+            document.getElementById('fullSeekProgress').style.width = porcentajeProgreso + "%";
             document.getElementById('fullCurrentTime').textContent = formatTime(audio.currentTime);
+            
+            // Barra Mini Verde estilo Spotify
+            document.getElementById('miniProgressBar').style.width = porcentajeProgreso + "%";
         });
+        
         audio.addEventListener('loadedmetadata', () => { document.getElementById('fullDurationTime').textContent = formatTime(audio.duration); });
         document.getElementById('fullSeekBar').addEventListener('click', (e) => { audio.currentTime = (e.offsetX / document.getElementById('fullSeekBar').offsetWidth) * audio.duration; });
 
         function abrirReproductorCompleto() {
             fullPlayer.style.transition = 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)';
-            fullPlayer.classList.add('open');
-            fullPlayer.style.transform = 'translateY(0px)';
+            fullPlayer.classList.add('open'); fullPlayer.style.transform = 'translateY(0px)';
         }
         function cerrarReproductorCompleto() {
             fullPlayer.style.transition = 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)';
-            fullPlayer.classList.remove('open');
-            fullPlayer.style.transform = 'translateY(100%)';
+            fullPlayer.classList.remove('open'); fullPlayer.style.transform = 'translateY(100%)';
         }
 
+        // CONTROL POPUP INTEGRADO CON BOTÓN "IR AL ARTISTA" DESDE LOS 3 PUNTOS
         let trackObjetivoPlaylist = "";
         function abrirModalPlaylist(url) {
             trackObjetivoPlaylist = url;
+            const trackObjeto = cancionesGlobales.find(c => c.archivo_url === url);
+            
+            if (trackObjeto) {
+                document.getElementById('modalTrackTitulo').textContent = trackObjeto.titulo || "Opciones";
+                document.getElementById('modalTrackArtista').textContent = trackObjeto.artista || "";
+                
+                // Configurar acción del nuevo botón "Ir al Artista"
+                document.getElementById('btnModalIrAlArtista').onclick = () => {
+                    document.getElementById('modalPlaylist').style.display = 'none';
+                    verPerfilArtista(trackObjeto.artista, idSeccionActual());
+                };
+            }
+
             const contenedor = document.getElementById('modalPlaylistList'); contenedor.innerHTML = "";
             let nombres = Object.keys(datosUsuario.playlists);
-            if(!nombres.length) { contenedor.innerHTML = "<p style='font-size:0.85em; padding:10px;'>Crea una playlist primero en la pestaña Crear.</p>"; }
+            if(!nombres.length) { contenedor.innerHTML = "<p style='font-size:0.85em; padding:10px; color:var(--texto-secundario);'>No tienes playlists creadas.</p>"; }
+            
             nombres.forEach(n => {
                 const item = document.createElement('div'); item.className = "modal-item"; item.textContent = n;
                 item.onclick = () => {
@@ -1173,9 +1194,7 @@
         document.getElementById('btnCreatePlaylist').addEventListener('click', () => {
             const input = document.getElementById('newPlaylistName'); const n = input.value.trim(); if(!n) return;
             if(!datosUsuario.playlists[n]) { 
-                datosUsuario.playlists[n] = []; 
-                guardarDatosPerfil(); 
-                input.value=""; 
+                datosUsuario.playlists[n] = []; guardarDatosPerfil(); input.value=""; 
                 cambiarSeccion('sec-biblioteca', document.querySelectorAll('.nav-item')[2]); 
             }
         });
